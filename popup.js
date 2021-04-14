@@ -134,7 +134,7 @@ async function tubeshift_popup_populate_alternates(tab_id) {
             // which is fixed with a redirect via javascript after the page loads in a browser. This
             // provides the wrong metadata for the card service so Odysee is skipped for now
             if (content.platform_name != 'odysee') {
-                background_page.tubeshift_fetch_json('tubeshift/' + content.platform_name + '/card/' + content.platform_id).then(data => {
+                background_page.tubeshift_fetch_json('card/' + content.platform_name + '/' + content.platform_id).then(data => {
                     if (data != undefined) {
                         title_element.textContent = data.title;
                         poster_img_element.src = data.thumbnail;

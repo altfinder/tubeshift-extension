@@ -235,7 +235,7 @@ async function tubeshift_fetch_platform_info(platform_name, platform_id) {
         return undefined;
     }
 
-    let path = "tubeshift/" + encodeURI(platform_name) + "/video/" + encodeURI(platform_id);
+    let path = "video/" + encodeURI(platform_name) + '/' + encodeURI(platform_id);
     let response = await tubeshift_fetch_json(path);
 
     return response;
