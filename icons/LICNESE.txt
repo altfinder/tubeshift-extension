@@ -1,0 +1,10 @@
+All images in this directory are copyright 2021 by Tyler Riddle.
+
+ALL RIGHTS RESERVED
+
+These images must only be distributed as a part of the TubeShift source
+code repository or in an official release of the TubeShift browser extension.
+
+These files may be used for development and testing purposes on a local workstation
+or development enviornment but must not be distributed to end users unless it is
+as part of an official TubeShift release.

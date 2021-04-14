@@ -1,0 +1,67 @@
+/*
+
+TubeShift is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TubeShift is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+*/
+
+body {
+    width: 400px;
+    margin: 1em;
+}
+
+.template {
+    display: none;
+}
+
+#hide {
+    display: none;
+}
+
+#header .extension_title {
+    display: inline;
+}
+
+#header img {
+    height: 2em;
+    margin: 5px;
+    float: right;
+}
+
+#alternate_list {
+    /* list-style-image: url('img/platform-bitchute.li.png'); */
+    list-style-type: none;
+    margin-left: 75px;
+    padding: 0;
+}
+
+#alternate_list .alternate_entry {
+    width: 267px;
+    height: 200px;
+}
+
+#alternate_list .alternate_entry .alternate_image {
+    display: flex;
+    height: 150px;
+    align-items: center;
+}
+
+#alternate_list .alternate_entry .alternate_image img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#alternate_list .alternate_entry .alternate_text {
+    height: 50px;
+    overflow: hidden;
+}

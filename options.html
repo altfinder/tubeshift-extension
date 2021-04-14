@@ -1,0 +1,61 @@
+<!--
+
+TubeShift is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TubeShift is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+-->
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="options.css"/>
+  </head>
+
+  <body>
+    <form id="extension_settings">
+      <div class="setting_group">
+        <h1>Privacy</h1>
+        <div id="setting-anonymous-data-collection" class="setting">
+          <h2>Anonymous Data Collection</h2>
+          <input name="enable_anonymous_data_collection" type="checkbox" disabled>
+          <button id=read_privacy_policy type=button>Read privacy policy</button>
+          <p>
+            In order to function this extension must send the following anonymous information to the TubeShift servers:
+            <ul>
+              <li>The identifiers of videos on websites such as YouTube, Rumble, and DailyMotion.</li>
+              <li>The identifiers of content entries associated with those previously mentioned video identifiers.</li>
+            </ul>
+
+            You can turn off this anonymous data collection but this extension will no longer have any functionality.
+          </p>
+        </div>
+      </div>
+
+      <div class="setting_group">
+        <h1>Interface</h1>
+        <div class="setting">
+          <h2>Show Overlay Over Video</h2>
+          <input name="show_overlay" type="checkbox" disabled>
+          <p>
+            When an alternate video is available show the TubeShift logo on top of the video.
+          </p>
+        </div>
+      </div>
+    </form>
+  </body>
+
+  <script src="browser.js"></script>
+  <script src="options.js"></script>
+</html>

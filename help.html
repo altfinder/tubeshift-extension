@@ -1,0 +1,77 @@
+<!--
+
+TubeShift is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TubeShift is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+-->
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>TubeShift Help</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="help.css"/>
+    </head>
+    <body>
+        <div id="header">
+            <h1 class="extension_title">TubeShift Help</h1>
+        </div>
+        <div class="content">
+            <h2>Known Limitations and Bugs</h2>
+            <p>
+                <ol>
+                    <li>Odysee video posters are never shown</li>
+                    <li>Rumble posters may not always load</li>
+                </ol>
+            </p>
+
+            <h2>Status Indicator</h2>
+            <p>
+                The TubeShift status indicator tells you if the extension is operating and if any
+                alternative locations for the video being viewed are available.
+            </p>
+            <div class="help_section">
+                <div class="section_header">
+                    <h3>Inactive</h3>
+                    <img src="/icons/buttonbar.inactive-32.png">
+                </div>
+
+                <p>TubeShift is not performing any lookups for the current page.</p>
+            </div>
+            <div class="help_section">
+                <div class="section_header">
+                    <h3>Active</h3>
+                    <img src="/icons/buttonbar.active-32.png">
+                </div>
+
+                <p>
+                    TubeShift is awaiting results from a lookup or there are no alternatives
+                    known for the current video. Anonymous information is being supplied to the
+                    TubeShift servers.
+                </p>
+            </div>
+            <div class="help_section">
+                <div class="section_header">
+                    <h3>Available</h3>
+                    <img src="/icons/buttonbar.available-32.png">
+                </div>
+
+                <p>
+                   There are alternate videos available. Clicking on the status indicator will show
+                   you all of the available alternatives.
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

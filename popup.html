@@ -1,0 +1,58 @@
+<!--
+
+TubeShift is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TubeShift is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+-->
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="popup.css"/>
+  </head>
+
+<body>
+  <span id="header">
+    <h1 class="extension_title">TubeShift Alpha</h1>
+    <a id="settings_link" href="#"><img src="/icons/gear.png" alt="Settings"></a>
+    <a id="help_link" href="#"><img src="/icons/help.png" alt="Help"></a>
+    <a id="donate_link" href="#"><img alt="Donate" src="/icons/donate.png"></a>
+    <a id="home_link" href="#"><img alt="TubeShift Website" src="/icons/home.png"></a>
+  </span>
+
+  <span id="information">
+    <ul id="alternate_list">
+      <li id="alternate_template">
+        <div class="alternate_entry">
+          <a class="alternate_link">
+            <div class="alternate_image">
+              <img class="alternate_init">
+              <img class="alternate_poster hide">
+            </div>
+          </a>
+        <div class="alternate_text">Loading title...</div>
+      </div>
+    </li>
+    </ul>
+  </span>
+</body>
+
+<script src="js/jquery-3.6.0.js"></script>
+<script src="js/jquery.timer-1.0.1.js"></script>
+<script src="browser.js"></script>
+<script src="tubeshift.js"></script>
+<script src="popup.js"></script>
+
+</html>

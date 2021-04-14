@@ -1,0 +1,15 @@
+This repository contains files made available under a mixture of licenses.
+
+A file or directory of files will contain details of the copyright that
+applies to the file or directory. A file will have the copyright terms
+at the top of it. A directory will have a file called LICENSE.txt that
+contains the copyright terms.
+
+In general licenses work as follows:
+
+All source code, markup, hypertext documents, styling information and other
+similiar files are made available under the terms of the GNU GPL Version 3.
+
+Icons and TubeShift specific artwork are not available for redistribution.
+
+Logos for the video platform websites have their own specific opensource licenses.
