@@ -37,13 +37,13 @@ function tubeshift_platform_youtube_handle_watch_page(tab_id, video_id) {
     tubeshift_fetch_platform_info("youtube", video_id).then(info => {
         if (info == undefined) {
             return;
+        } else if (info.content != undefined) {
+            tubeshift_alternate_info_ready(tab_id, info.content);
+        } else if (info.content_id != undefined) {
+            tubeshift_content_id_ready(tab_id, info.content_id);
         }
 
-        if (info.content_id == undefined) {
-            return;
-        }
-
-        tubeshift_content_id_ready(tab_id, info.content_id);
+        return;
     });
 }
 

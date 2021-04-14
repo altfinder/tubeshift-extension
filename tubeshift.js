@@ -253,10 +253,14 @@ async function tubeshift_fetch_content_info(content_id) {
 }
 
 function tubeshift_content_id_ready(tab_id, content_id) {
-    tubeshift_fetch_content_info(content_id).then(response => {
-        tubeshift_set_tab_info_alternates(tab_id, response);
-        tubeshift_extension_update_notification(tab_id);
+    tubeshift_fetch_content_info(content_id).then(alternates => {
+        tubeshift_alternate_info_ready(tab_id, alternates);
     });
+}
+
+function tubeshift_alternate_info_ready(tab_id, alternates) {
+    tubeshift_set_tab_info_alternates(tab_id, alternates);
+    tubeshift_extension_update_notification(tab_id);
 }
 
 function tubeshift_extension_update_notification(tab_id) {
