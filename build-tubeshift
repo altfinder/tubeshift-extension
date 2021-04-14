@@ -4,28 +4,16 @@ set -e
 set -x
 
 TUBESHIFT_ROOT="$(dirname $0)"
-DIST_FILE_PREFIX="${TUBESHIFT_ROOT}/tubeshift"
+DIST_FILE="${TUBESHIFT_ROOT}/tubeshift.chrome.zip"
 
 cd "$TUBESHIFT_ROOT"
 
-function package_for_browser {
-    local browser_name="$1"
-    local dist_file="${DIST_FILE_PREFIX}.${browser_name}.zip"
+rm -f "${DIST_FILE}"
 
-    rm -f "${dist_file}"
-
-    zip -r "${dist_file}" \
-        manifest.json \
-        *.txt \
-        icons/* \
-        img/* \
-        platform/*.js \
-        js/*.js \
-        *.html *.css *.js
-
-    zip -j "${dist_file}" browser/${browser_name}/browser.js
-}
-
-for i in chrome; do
-    package_for_browser "$i"
-done
+zip -r "${DIST_FILE}" \
+    manifest.json *.txt \
+    *.html *.css *.js \
+    icons/*.png icons/*.txt \
+    img/*.png \
+    platform/*.js \
+    js/*.js
