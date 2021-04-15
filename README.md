@@ -22,6 +22,48 @@ official extension stores. This repository can also be used for development
 work or for running the extension in a browser with out having to go through
 an official extension store.
 
+## Contributions
+
+Contributions are welcome! But........
+
+This is the repository for the official releases of TubeShift and mirrors
+what is given to the [Chrome Web Store](https://chrome.google.com/webstore/detail/tubeshift/eapmmgdleobilfnmfandlhbcfdlaghkp),
+[Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/tubeshift/eoificgcpbeihdgbkgajefcjohegdieh),
+and [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tubeshift/).
+Because of this there are policies that have to be followed and lots of rules
+about what the code can do and even how it is provided to the browser vendors.
+
+Here's some warnings about contributions I can think of off the top of my head:
+
+1. Not every contribution will be shippable either because of a policy violation
+   for a browser vendor, excesive complications/overhead with fulfilling a requirement
+   to meet policy because of the contribution, or even the contribution does not
+   conform to code requirements that originate as a policy external to this project.
+
+2. TubeShift isn't intended to do everything. For instance the browser vendors require
+   each extension to implement a narrow and easy to understand set of features.
+
+3. If a contribution uses a Javascript library then the library must be provided with
+   the contribution and it must be unmodified. There is a hard requirement that a build
+   ships with all resources required for operation (nothing can be loaded from the network)
+   and that any 3rd party libraries are supplied unmodified and unminified.
+
+4. There is a hard requirement that all code be easy to audit for compliance to browser
+   vendor policies. The vendors themselves perform code review before updates to the
+   official packages are approved and shipped out to end users. TubeShift is structured
+   around demonstrating policy conformance such as the tubeshift\_policy\_anon\_data\_collection()
+   function which guards all network requests and implements the browser vendor requirements
+   for informed consent and offering the user control over the collection of anonymously
+   identifying user information.
+
+5. Be patient. Because of all the external requirements and policies applied to shipping
+   a contribution it could be a while before it's incorporated. There may also be requests
+   for the contribution to be further modified, refined or refactored before it can be accepted
+   and shipped.
+
+That's just the stuff off the top of my head. I've never done this before so I'm sure that
+list will get bigger.
+
 ## TODO
 
 This software is considered alpha quality at this time though it is out and in
