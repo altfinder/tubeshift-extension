@@ -200,3 +200,114 @@ The mechanism of achieving browser independence is by having the browser.js file
 functions that provide high level features TubeShift needs in a browser independent way.
 As an example sending a message to a content script is done with the tubeshift\_browser\_send\_tab\_message()
 which itself hides all browser specific logic for message delivery.
+
+## API
+
+The TubeShift API is based on HTTP GET requests with URLs that serve as endpoints for performing
+key lookups. It's not quite REST but it is using JSON for transporting the data structure provided
+as a result for the key lookup.
+
+Each TubeShift end point will return a lookup result as a JSON object with the following keys:
+
+* status - always present; must be one of "known" or "unknown"
+* data - always present if status is "known"; content is defined per endpoint
+
+Here is an example of a query for a YouTube video that is not known by the system:
+
+    $ curl https://api.tubeshift.info/video/youtube/deadbeef
+    {
+        "status":"unknown"
+    }
+    $
+
+### Endpoints
+
+#### Content Record: /content/
+
+The TubeShift API is a way to find instances of and retrieve the information associated with a
+piece of content known to the system. TubeShift content has a UUID acting as the content identifier
+and is itself an ordered list of URLs and other information related to the video on the supported
+video platforms.
+
+A content record can be retrived via the /content/&lt;content_id&gt; endpoint like this:
+
+    $ curl https://api.tubeshift.info/content/7fe6ca77-f337-470b-bcc4-7365fbc5af7c
+    {
+        "status": "known",
+        "data": [
+            {
+                "url": "https://rumble.com/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html",
+                "platform_name": "rumble",
+                "platform_display": "Rumble",
+                "platform_id": "vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html"
+            },
+            {
+                "url": "https://youtu.be/FqGlZdS_joU",
+                "platform_name": "youtube",
+                "platform_display": "YouTube",
+                "platform_id": "FqGlZdS_joU"
+            }
+        ]
+    }
+    $
+
+The data associated with a content record is an ordered list of objects that contain information about the
+known alternatives for the video associated with the content. The list is ordered by the API to be rendered
+correctly for the end user assuming the end user is not using any locally configured sorting. The sort order
+defined by the API for results is as follows:
+
+1. If the channel has a specific sort configuration it will be used.
+2. Otherwise the order is sorted alphabetically by the platform name.
+
+#### Video Platform Lookup: /video/
+
+Content entries for videos can be found via the /video/&lt;platform\_name&gt;/&lt;platform\_id&gt; set
+of endpoints. The second level directory contains the video platform name and the third level contains
+the video platform unique identifier for the video.
+
+The response includes the content\_id and data associated with the content record in the same format as
+is described in "Content Record" endpoint documentation.
+
+A lookup for a YouTube video looks like this:
+
+    $ curl https://api.tubeshift.info/video/youtube/FqGlZdS_joU
+    {
+        "status": "known",
+        "data": {
+            "content_id": "7fe6ca77-f337-470b-bcc4-7365fbc5af7c",
+            "content": [
+                {
+                    "url": "https://rumble.com/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html",
+                    "platform_name": "rumble",
+                    "platform_display": "Rumble",
+                    "platform_id": "vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html"
+                },
+                {
+                    "url": "https://youtu.be/FqGlZdS_joU",
+                    "platform_name": "youtube",
+                    "platform_display": "YouTube",
+                    "platform_id": "FqGlZdS_joU"
+                }
+            ]
+        }
+    }
+    $
+
+#### Card Data: /card/
+
+This is information used for displaying a thumbnail and summary of a video like is often used in social
+media posts. This endpoint takes the form of /card/&lt;platform\_name&gt;/&lt;platform\_id&gt; and has
+a response that looks like this:
+
+    $ curl https://api.tubeshift.info/card/rumble/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html
+    {
+        "status": "known",
+        "data": {
+            "title": "Arthur MacMurrough Kavanagh: A Most Remarkable Man",
+            "thumbnail": "https://i.rmbl.ws/s8/6/L/R/q/K/LRqKb.4Wpjb.1.jpg"
+        }
+    }
+    $
+
+Card lookups can only be performed for platform IDs that are known to the system otherwise an "unknown" response
+will be provided.
