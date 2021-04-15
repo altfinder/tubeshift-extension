@@ -207,6 +207,19 @@ The TubeShift API is based on HTTP GET requests with URLs that serve as endpoint
 key lookups. It's not quite REST but it is using JSON for transporting the data structure provided
 as a result for the key lookup.
 
+### Simulator
+
+Look at the contents of the mock/api/ directory inside this repository for a set of static JSON
+files. This directory is suitable to be used as the document root for a webserver and will serve
+as a basic simulator for api.tubeshift.info.
+
+If you setup a simulator with this mockup data don't forget to set a CORS header or the browser
+will reject the HTTP responses. You need something like this for Apache:
+
+    Header set Access-Control-Allow-Origin "*"
+
+### Endpoints
+
 Each TubeShift end point will return a lookup result as a JSON object with the following keys:
 
 * status - always present; must be one of "known" or "unknown"
@@ -219,8 +232,6 @@ Here is an example of a query for a YouTube video that is not known by the syste
         "status":"unknown"
     }
     $
-
-### Endpoints
 
 #### Content Record: /content/
 
