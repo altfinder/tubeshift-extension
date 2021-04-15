@@ -29,6 +29,42 @@ use by endusers at this time. There are a number of user interface improvements
 that need to be made before TubeShift is ready for a beta quality release and
 user testing.
 
+### Improve Modularity
+
+The system was built to be modular but things didn't work out the way I expected
+them to. This has lead to the modularity being clumsy and painful. The way modularity
+is implemented needs to be revisted and the code refactored to handle multiple
+video platforms better.
+
+### Add BitChute Notifications
+
+Right now only the user is only informed about alternates for YouTube videos
+even though alternatives are known for any of the platforms the API supports.
+
+BitChute only provides videos in low resolution so it makes sense to prioritize
+adding BitChute as a platform that can notify users about an alternative since
+there is a high likelyhood that the video is available another place with
+a higher quality.
+
+### Enable/Disable Video Platforms
+
+The user should be able to select if a video platform is going to be ignored
+or not. For instance if the user never wants to see alternatives on the BitChute
+platform then the user should be able to disable BitChute by unchecking an entry
+in the options UI.
+
+### User Controlled Alternatives Display Order
+
+Currently the display order of alternatives is controlled by the API which returns
+an ordered list of alternatives. The API default sort order will always be
+alphabetical though a channel specific configuration may override the default
+sort order and provide the channel owners preference for display order.
+
+The user should be the ultimate authority over the final displayed order of
+alternatives. By default the user should get the API provided display order
+but with opt-in configuration by the user. The user would enable this feature then
+specify their desired display order in the options UI.
+
 ### Overlay Timeout Indication
 
 When the TubeShift logo shows up as an overlay on top of the YouTube video the
