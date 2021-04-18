@@ -178,17 +178,22 @@ each other to make up TubeShift:
 
 This implementation is spread across many different files. Here's a roadmap:
 
-* js/ contains javascript libraries that come from third parties and must remain unmodified
-  to meet extension store requirements.
+* js/ contains javascript libraries. If a library comes from a third third parties
+  then it must remain unmodified to meet extension store requirements. Internal
+  libraries for the extension are also stored in here.
+
+* js/tubeshift-module.js contains support for registering loadable components
+
+* js/tubeshift-browser.js contains all the browser specific functions exposed in a
+  browser independent way. Originally there was 2 implementations, one for FireFox
+  and one for Chrome but the Chrome implementation works unmodified in FireFox.
+  FireFox now uses the Chrome implementation for ease of development effort.
 
 * platform/ contains the code that makes up a supported video platform.
 
-* background.js contains the initialization procedure for the background script.
+* background.js contains the code and initialization procedure for the background script.
 
-* browser.js contains all the browser specific functions exposed in a browser independent way.
-  Originally there was 2 implementations, one for FireFox and one for Chrome but the Chrome
-  implementation works unmodified in FireFox. FireFox now uses the Chrome implementation for
-  ease of development effort.
+* browser.js
 
 * content_script.js contains the implementation of the TubeShift video overlay and the
   initialization procedure for the content script fed into the video watch page.
@@ -197,8 +202,6 @@ This implementation is spread across many different files. Here's a roadmap:
   for the extension options UI.
 
 * popup.js contains the UI and initialization logic for the extension popup.
-
-* tubeshift.js contains the majority of the TubeShift logic.
 
 ### Entry Points
 

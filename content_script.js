@@ -141,16 +141,16 @@ function TubeShiftOverlayButton(click_handler) {
 {
     let bg_page_connection;
 
-    function tubeshift_content_script_set_bg_page_connection(connection) {
+    function tubeshift_cs_set_bg_page_connection(connection) {
         bg_page_connection = connection;
     }
 
-    function tubeshift_content_script_get_bg_page_connection() {
+    function tubeshift_cs_get_bg_page_connection() {
         return bg_page_connection;
     }
 }
 
-function tubeshift_content_script_handle_available(count) {
+function tubeshift_cs_handle_available(count) {
     const video_element = $("video")[0];
     const video_container = $(video_element).parent()[0];
 
@@ -171,16 +171,17 @@ function tubeshift_content_script_handle_available(count) {
     overlay.start();
 }
 
-function tubeshift_content_script_handle_message(message) {
+function tubeshift_cs_handle_message(message) {
     if (message.name == 'available') {
-        tubeshift_content_script_handle_available(message.count);
+        tubeshift_cs_handle_available(message.count);
     } else {
         throw "unknown message in content script: " + message.name;
     }
 }
 
-async function tubeshift_content_script_start() {
-    tubeshift_browser_connect_bg_page();
+function tubeshift_cs_start() {
+    tubeshift_browser_start_content_script();
+    console.log("TubeShift content script started");
 }
 
-tubeshift_content_script_start();
+tubeshift_cs_start();

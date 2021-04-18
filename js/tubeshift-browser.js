@@ -11,7 +11,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading Chrome browser support (also seems to work with Firefox)");
+console.log("Loading TubeShift Chrome browser support (also seems to work with Firefox)");
+
+{
+    const content_script_js_files = [
+        '/js/jquery-3.6.0.js',
+        '/js/jquery.timer-1.0.1.js',
+        '/js/tubeshift-browser.js',
+        '/content_script.js',
+    ];
+
+    var tubeshift_browser_init_content_script = async function (tab_id) {
+        for (const js_file of content_script_js_files) {
+            await tubeshift_browser_run_tab_script(tab_id, js_file);
+        }
+    }
+}
+
+async function tubeshift_browser_run_tab_script(tab_id, path) {
+    return await new Promise((resolve, reject) => {
+        chrome.tabs.executeScript(tab_id, { file: path, runAt: "document_idle" }, resolve);
+    });
+}
 
 async function tubeshift_browser_storage_get(key) {
     return await new Promise((resolve, reject) => {
@@ -96,6 +117,12 @@ async function tubeshift_browser_create_tab(url) {
     });
 }
 
+async function tubeshift_browser_update_tab(tab_id, new_value) {
+    return await new Promise((resolve, reject) => {
+        chrome.tabs.update(tab_id, new_value, resolve);
+    });
+}
+
 async function tubeshift_browser_get_active_tab() {
     return await new Promise((resolve, reject) => {
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
@@ -123,7 +150,7 @@ async function tubeshift_browser_get_bg_page() {
         const port = chrome.runtime.connect();
 
         port.onMessage.addListener(message => {
-            tubeshift_content_script_handle_message(message);
+            tubeshift_cs_handle_message(message);
         });
 
         port.onDisconnect.addListener(() => {
@@ -140,26 +167,6 @@ async function tubeshift_browser_get_bg_page() {
 
         bg_page_port.postMessage(message);
     }
-}
-
-async function tubeshift_browser_update_tab(tab_id, new_value) {
-    return await new Promise((resolve, reject) => {
-        chrome.tabs.update(tab_id, new_value, resolve);
-    });
-}
-
-async function tubeshift_browser_run_tab_script(tab_id, path) {
-    return await new Promise((resolve, reject) => {
-        chrome.tabs.executeScript(tab_id, { file: path, runAt: "document_idle" }, resolve);
-    });
-}
-
-async function tubeshift_browser_init_content_script(tab_id) {
-    await tubeshift_browser_run_tab_script(tab_id, '/js/jquery-3.6.0.js');
-    await tubeshift_browser_run_tab_script(tab_id, '/js/jquery.timer-1.0.1.js')
-    await tubeshift_browser_run_tab_script(tab_id, '/browser.js');
-    await tubeshift_browser_run_tab_script(tab_id, '/tubeshift.js');
-    await tubeshift_browser_run_tab_script(tab_id, '/content_script.js');
 }
 
 {
@@ -180,7 +187,7 @@ async function tubeshift_browser_init_content_script(tab_id) {
         });
 
         port.onMessage.addListener(message => {
-            tubeshift_extension_handle_message(tab_id, message);
+            tubeshift_bg_handle_message(tab_id, message);
         });
 
         port_by_tab_id[tab_id] = port;
@@ -206,28 +213,32 @@ async function tubeshift_browser_init_content_script(tab_id) {
     };
 }
 
-function tubeshift_browser_init_bg_page_listeners() {
+function tubeshift_browser_start_bg_page() {
     chrome.runtime.onConnect.addListener(tubeshift_browser_handle_connection);
 
     chrome.tabs.onRemoved.addListener(function(tab_id, details) {
-        tubeshift_handle_tab_close(tab_id);
+        tubeshift_bg_handle_tab_close(tab_id);
     });
 
     chrome.tabs.onActivated.addListener(function(details) {
         chrome.tabs.get(details.tabId, tab => {
-            tubeshift_handle_navigation_event(tab.id, tab.url);
+            tubeshift_bg_handle_navigation_event(tab.id, tab.url);
         });
     });
 
     chrome.tabs.onUpdated.addListener(function(tab_id, details, tab_info) {
         if (details.url) {
-            tubeshift_handle_navigation_event(tab_id, details.url);
+            tubeshift_bg_handle_navigation_event(tab_id, details.url);
         }
     });
 
     chrome.webNavigation.onCommitted.addListener(details => {
         if (details.transitionType == "reload") {
-            tubeshift_handle_reload_event(details.tabId, details.url);
+            tubeshift_bg_handle_reload_event(details.tabId, details.url);
         }
     });
+}
+
+function tubeshift_browser_start_content_script() {
+    tubeshift_browser_connect_bg_page();
 }

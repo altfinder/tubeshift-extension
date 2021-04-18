@@ -21,8 +21,9 @@
 
     "background": {
       "scripts": [
-        "browser.js",
-        "tubeshift.js",
+        "js/tubeshift-api-0.0.1.js",
+        "js/tubeshift-module.js",
+        "js/tubeshift-browser.js",
         "platform/youtube.js",
         "background.js"
       ]

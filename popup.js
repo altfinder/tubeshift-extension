@@ -3,7 +3,7 @@
 // This is not open-source software. You may not use or distribute this software
 // with out authorization.
 
-console.log("Loading popup");
+console.log("Loading TubeShift Popup");
 
 let alternates_template;
 let background_page;
@@ -25,7 +25,6 @@ async function tubeshift_popup_start() {
     background_page = await tubeshift_browser_get_bg_page();
 
     if (window_url.searchParams.get('tab')) {
-        console.log("front content script");
         tab_id = window_url.searchParams.get('tab');
         from_content_script = true;
     } else {
@@ -65,6 +64,8 @@ async function tubeshift_popup_start() {
 
     await tubeshift_popup_populate_alternates(tab_id);
 
+    console.log("TubeShift Popup started");
+
     return;
 }
 
@@ -82,37 +83,36 @@ function tubeshift_popup_get_alternates_element() {
 }
 
 async function tubeshift_popup_populate_alternates(tab_id) {
-    const alt_content = background_page.tubeshift_get_tab_info_alternates(tab_id);
+    const alt_content = background_page.tubeshift_bg_get_tab_info_alternates(tab_id);
+    const platform_name = background_page.tubeshift_bg_get_tab_info_platform_name(tab_id);
     const alternates_list = document.getElementById('alternate_list');
 
     if (alt_content == undefined) {
         return;
     }
 
-    for (const content of alt_content) {
-        const platform_name = background_page.tubeshift_get_tab_info_platform_name(tab_id);
-
-        if (content.platform_name == platform_name) {
+    for (const location of alt_content) {
+        if (location.get_name() == platform_name) {
             continue;
-        } else if (! background_page.tubeshift_extension_supported_platform(content.platform_name)) {
+        } else if (! background_page.tubeshift_bg_supported_platform(location.get_name())) {
             continue;
         }
 
         const li_element = alternates_template.cloneNode(true);
         const a_element = li_element.querySelector('a');
         const init_img_element = li_element.querySelector('.alternate_init');
-        const init_image_file = '/img/platform-' + content.platform_name + '.png';
+        const init_image_file = '/img/platform-' + location.get_name() + '.png';
         const poster_img_element = li_element.querySelector('.alternate_poster');
         const title_element = li_element.querySelector('.alternate_text');
 
         init_img_element.src = init_image_file;
-        init_img_element.alt = content.platform_display;
+        init_img_element.alt = location.display;
 
-        a_element.href = content.url;
+        a_element.href = location.get_watch();
 
         if (! from_content_script) {
             a_element.onclick = function() {
-                tubeshift_browser_update_tab(tab_id, { url: content.url }).then(() => {
+                tubeshift_browser_update_tab(tab_id, { url: location.get_watch() }).then(() => {
                     window.close();
                 });
 
@@ -124,24 +124,27 @@ async function tubeshift_popup_populate_alternates(tab_id) {
             init_img_element.remove();
             poster_img_element.classList.remove('hide');
 
-            li_element.style.listStyleImage = "url(img/platform-" + content.platform_name + ".li.png)";
+            li_element.style.listStyleImage = "url(img/platform-" + location.get_name() + ".li.png)";
         }
 
         alternates_list.appendChild(li_element);
 
-        if (background_page.tubeshift_policy_anon_data_collection()) {
+        if (background_page.tubeshift_bg_policy_anon_data_collection()) {
             // FIXME Odysee links are total hacks right now and resolve to the wrong video page
             // which is fixed with a redirect via javascript after the page loads in a browser. This
             // provides the wrong metadata for the card service so Odysee is skipped for now
-            if (content.platform_name != 'odysee') {
-                background_page.tubeshift_fetch_json('card/' + content.platform_name + '/' + content.platform_id).then(data => {
-                    if (data != undefined) {
-                        title_element.textContent = data.title;
-                        poster_img_element.src = data.thumbnail;
-                    } else {
+            if (location.get_name() != 'odysee') {
+                background_page.tubeshift_bg_fetch_platform_meta(location.get_name(), location.get_id())
+                    .then(meta => {
+                        if (! meta.known()) {
+                            throw "result was not known";
+                        }
+
+                        title_element.textContent = meta.get_title();
+                        poster_img_element.src = meta.get_thumbnail();
+                    }).catch(error => {
                         title_element.textContent = '';
-                    }
-                });
+                    });
             } else {
                 title_element.textContent = '';
             }
