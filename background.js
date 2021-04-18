@@ -119,19 +119,6 @@ const tubeshift_default_options = {
     }
 }
 
-function tubeshift_bg_locations_remove_platform(platform_name, locations) {
-    let result = [];
-
-    for(item of locations) {
-        if (item.get_name() != platform_name) {
-            result.push(item);
-        }
-    }
-
-    return result;
-}
-
-
 function tubeshift_bg_handle_tab_close(tab_id) {
     tubeshift_remove_tab_info(tab_id);
 }
@@ -164,9 +151,8 @@ function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
     tubeshift_bg_fetch_platform_info(platform_name, platform_id)
         .then(video => {
             if (video.known()) {
-                const filtered_locations = tubeshift_bg_locations_remove_platform(platform_name, video.get_locations());
                 tubeshift_bg_set_tab_info_platform_name(tab_id, platform_name);
-                tubeshift_bg_alternates_ready(tab_id, filtered_locations);
+                tubeshift_bg_alternates_ready(tab_id, video.get_locations());
             }
         }).catch(error => { console.log("TubeShift platform info request failed: " + error) });
 }
@@ -197,7 +183,7 @@ function tubeshift_bg_fetch_platform_info(platform_name, platform_id) {
             error("Network fetch denied: anonymous data collection is disabled");
         }
 
-        tubeshift_api_get_video({ platform_name: platform_name, platform_id: platform_id })
+        tubeshift_api_get_alternates({ platform_name: platform_name, platform_id: platform_id })
             .then(resolve)
             .catch(error);
     });

@@ -147,6 +147,24 @@ function TubeShiftVideo(api, result_in) {
         return this.api_result.data.content_id;
     }
 
+
+    this.remove_platform = function(platform_name) {
+        // make sure cached_locations is defined
+        this.get_locations();
+
+        var new_locations = [];
+
+        for(i of cached_locations) {
+            if (i.get_name() != platform_name) {
+                new_locations.push(i);
+            }
+        }
+
+        cached_locations = new_locations;
+
+        return;
+    }
+
     function _make_locations(api, locations) {
         var location_objects = [];
 
@@ -282,6 +300,20 @@ function TubeShiftAPI(user_config) {
         });
     }
 
+    this.get_alternates = function(lookup_spec) {
+        return new Promise((resolve, error) => {
+            if (! "platform_name" in lookup_spec || ! "platform_id" in lookup_spec) {
+                error("invalid lookup_spec");
+                return;
+            }
+
+            this.get_video(lookup_spec).then(video => {
+                video.remove_platform(lookup_spec.platform_name);
+                resolve(video);
+            });
+        });
+    }
+
     function _make_meta_by_platform_path(platform_name, platform_id) {
         let buffer = "/card/" + encodeURIComponent(platform_name);
         buffer += '/' + encodeURIComponent(platform_id);
@@ -336,6 +368,10 @@ function TubeShiftAPI(user_config) {
 
     var tubeshift_api_get_video = function(lookup_spec) {
         return tubeshift_api__get_singleton().get_video(lookup_spec);
+    }
+
+    var tubeshift_api_get_alternates = function(lookup_spec) {
+        return tubeshift_api__get_singleton().get_alternates(lookup_spec);
     }
 
     var tubeshift_api_get_meta = function(lookup_spec) {
