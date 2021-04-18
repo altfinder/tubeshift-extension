@@ -176,6 +176,8 @@ function tubeshift_bg_handle_navigation_event(tab_id, url_string) {
 }
 
 function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
+    tubeshift_bg_set_tab_info_platform_name(tab_id, platform_name);
+
     tubeshift_bg_fetch_platform_info(platform_name, platform_id)
         .then(video => {
             if (video.known()) {
@@ -263,7 +265,6 @@ function tubeshift_bg_filter_alternates_display(alternates) {
 function tubeshift_bg_alternates_ready(tab_id, platform_name, video) {
     const locations = video.get_locations();
 
-    tubeshift_bg_set_tab_info_platform_name(tab_id, platform_name);
     tubeshift_bg_set_tab_info_alternates(tab_id, locations);
     tubeshift_bg_update_notification(tab_id);
 }
