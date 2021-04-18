@@ -24,6 +24,9 @@
         "js/tubeshift-api-0.0.1.js",
         "js/tubeshift-module.js",
         "js/tubeshift-browser.js",
+        "platform/bitchute.js",
+        "platform/dailymotion.js",
+        "platform/rumble.js",
         "platform/youtube.js",
         "background.js"
       ]

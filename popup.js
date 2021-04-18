@@ -94,7 +94,7 @@ async function tubeshift_popup_populate_alternates(tab_id) {
     for (const location of alt_content) {
         if (location.get_name() == platform_name) {
             continue;
-        } else if (! background_page.tubeshift_bg_supported_platform(location.get_name())) {
+        } else if (! background_page.tubeshift_module_is_platform_name(location.get_name())) {
             continue;
         }
 

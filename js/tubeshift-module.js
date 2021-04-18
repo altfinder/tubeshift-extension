@@ -14,7 +14,24 @@
 console.log("Loading TubeShift module support");
 
 {
+    let tubeshift_platform_names = { };
     let tubeshift_platform_handlers = [];
+
+    function tubeshift_module_add_platform_name(platform_name) {
+        if (tubeshift_platform_names[platform_name]) {
+            throw "Attmept to add duplicate platform name: '" + platform_name + "'";
+        }
+
+        tubeshift_platform_names[platform_name] = true;
+    }
+
+    function tubeshift_module_get_platform_names() {
+        return tubeshift_platform_names.keys();
+    }
+
+    function tubeshift_module_is_platform_name(platform_name) {
+        return tubeshift_platform_names[platform_name] || false;
+    }
 
     function tubeshift_module_get_platform_handler(platform_name) {
         for (const i in tubeshift_platform_handlers) {
@@ -29,6 +46,10 @@ console.log("Loading TubeShift module support");
     }
 
     function tubeshift_module_set_platform_handler(platform_name, callback) {
+        if (! tubeshift_module_is_platform_name(platform_name)) {
+            throw "Attempt to register platform handler for unknown platform name: '" + platform_name + "'";
+        }
+
         if (tubeshift_module_get_platform_handler(platform_name)) {
             throw "there is already a platform handler set for platform_name:'" + platform_name + "'";
         }

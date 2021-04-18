@@ -13,6 +13,8 @@
 
 console.log("Loading TubeShift YouTube platform support");
 
+const tubeshift_platform_youtube_name = "youtube";
+
 {
     const tubeshift_platform_youtube_urls = {
         "www.youtube.com": 1
@@ -39,11 +41,12 @@ function tubeshift_platform_youtube_navigation_handler(tab_id, url) {
     let video_id = tubeshift_platform_youtube_get_video_id(url);
 
     if (video_id != undefined) {
-        tubeshift_bg_handle_watch_event(tab_id, "youtube", video_id);
+        tubeshift_bg_handle_watch_event(tab_id, tubeshift_platform_youtube_name, video_id);
         return true;
     }
 
     return false;
 }
 
-tubeshift_module_set_platform_handler("youtube", tubeshift_platform_youtube_navigation_handler);
+tubeshift_module_add_platform_name(tubeshift_platform_youtube_name);
+tubeshift_module_set_platform_handler(tubeshift_platform_youtube_name, tubeshift_platform_youtube_navigation_handler);

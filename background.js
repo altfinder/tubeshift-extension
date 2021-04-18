@@ -13,13 +13,6 @@
 
 console.log("Loading TubeShift background page");
 
-const tubeshift_supported_platforms = {
-    bitchute: 1,
-    dailymotion: 1,
-    odysee: 1,
-    rumble: 1,
-}
-
 const tubeshift_default_options = {
     first_run: true,
     enable_anonymous_data_collection: true,
@@ -211,14 +204,6 @@ function tubeshift_bg_fetch_platform_meta(name, id) {
 
         return extension_manifest;
     }
-}
-
-function tubeshift_bg_supported_platform(platform_name) {
-    if (platform_name in tubeshift_supported_platforms) {
-        return true;
-    }
-
-    return false;
 }
 
 function tubeshift_bg_alternates_ready(tab_id, alternates) {
