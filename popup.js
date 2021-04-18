@@ -86,12 +86,13 @@ async function tubeshift_popup_populate_alternates(tab_id) {
     const alt_content = background_page.tubeshift_bg_get_tab_info_alternates(tab_id);
     const platform_name = background_page.tubeshift_bg_get_tab_info_platform_name(tab_id);
     const alternates_list = document.getElementById('alternate_list');
+    const filtered_content = background_page.tubeshift_bg_filter_alternates_display(alt_content);
 
     if (alt_content == undefined) {
         return;
     }
 
-    for (const location of alt_content) {
+    for (const location of filtered_content) {
         if (location.get_name() == platform_name) {
             continue;
         } else if (! background_page.tubeshift_module_is_platform_name(location.get_name())) {

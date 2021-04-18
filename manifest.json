@@ -9,7 +9,8 @@
     },
 
     "permissions": [
-      "https://www.youtube.com/",
+      "https://www.bitchute.com/video/*",
+      "https://www.youtube.com/watch",
       "storage",
       "tabs",
       "webNavigation"
@@ -26,6 +27,7 @@
         "js/tubeshift-browser.js",
         "platform/bitchute.js",
         "platform/dailymotion.js",
+        "platform/odysee.js",
         "platform/rumble.js",
         "platform/youtube.js",
         "background.js"

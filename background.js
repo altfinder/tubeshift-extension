@@ -17,6 +17,14 @@ const tubeshift_default_options = {
     first_run: true,
     enable_anonymous_data_collection: true,
     show_overlay: true,
+
+    display_platform: {
+        bitchute: true,
+        dailymotion: true,
+        odysee: true,
+        rumble: true,
+        youtube: false,
+    }
 };
 
 {
@@ -30,10 +38,19 @@ const tubeshift_default_options = {
             loaded_options = {};
         }
 
-        for(option_name in tubeshift_default_options) {
+        for(const option_name in tubeshift_default_options) {
             if(loaded_options[option_name] == undefined) {
                 loaded_options[option_name] = tubeshift_default_options[option_name];;
                 changed = true;
+            }
+
+            if (option_name == "display_platform") {
+                for (const key in tubeshift_default_options[option_name]) {
+                    if (loaded_options[option_name][key] == undefined) {
+                        loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
+                        changed = true;
+                    }
+                }
             }
         }
 
@@ -41,6 +58,7 @@ const tubeshift_default_options = {
 
         if (changed) {
             await tubeshift_bg_options_save();
+            tubeshift_browser_show_options();
         }
     }
 
@@ -49,11 +67,24 @@ const tubeshift_default_options = {
     }
 
     function tubeshift_bg_options_get(option_name) {
-        return tubeshift_options[option_name];
+        const option_parts = option_name.split('.');
+
+        if (option_parts.length == 1) {
+            return tubeshift_options[option_parts[0]];
+        } else if (option_parts.length == 2) {
+            return tubeshift_options[option_parts[0]][option_parts[1]];
+        }
     }
 
     var tubeshift_bg_options_set = async function(option_name, option_value) {
-        tubeshift_options[option_name] = option_value;
+        const option_parts = option_name.split('.');
+
+        if (option_parts.length == 1) {
+            tubeshift_options[option_parts[0]] = option_value;
+        } else if (option_parts.length == 2) {
+            tubeshift_options[option_parts[0]][option_parts[1]] = option_value;
+        }
+
         await tubeshift_bg_options_save();
     }
 }
@@ -108,6 +139,7 @@ const tubeshift_default_options = {
     }
 
     function tubeshift_bg_set_tab_info_alternates(tab_id, alternates_in) {
+        console.log("setting tab info: ", alternates_in);
         tubeshift_tab_info[tab_id].alternates = alternates_in;
     }
 }
@@ -117,7 +149,11 @@ function tubeshift_bg_handle_tab_close(tab_id) {
 }
 
 function tubeshift_bg_handle_navigation_change(tab_id, url) {
-    tubeshift_module_call_platform_handlers(tab_id, url);
+    const found = tubeshift_module_call_platform_handlers(tab_id, url);
+
+    if (found) {
+        tubeshift_bg_handle_watch_event(tab_id, found.platform_name, found.platform_id);
+    }
 }
 
 function tubeshift_bg_handle_reload_event(tab_id, url) {
@@ -133,7 +169,6 @@ function tubeshift_bg_handle_navigation_event(tab_id, url_string) {
     if (url_string != tubeshift_bg_get_tab_info_url(tab_id)) {
         tubeshift_reset_tab_info(tab_id);
         tubeshift_bg_set_tab_info_url(tab_id, url_string);
-
         tubeshift_bg_handle_navigation_change(tab_id, new URL(url_string));
     }
 
@@ -144,8 +179,7 @@ function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
     tubeshift_bg_fetch_platform_info(platform_name, platform_id)
         .then(video => {
             if (video.known()) {
-                tubeshift_bg_set_tab_info_platform_name(tab_id, platform_name);
-                tubeshift_bg_alternates_ready(tab_id, video.get_locations());
+                tubeshift_bg_alternates_ready(tab_id, platform_name, video);
             }
         }).catch(error => { console.log("TubeShift platform info request failed: " + error) });
 }
@@ -206,8 +240,31 @@ function tubeshift_bg_fetch_platform_meta(name, id) {
     }
 }
 
-function tubeshift_bg_alternates_ready(tab_id, alternates) {
-    tubeshift_bg_set_tab_info_alternates(tab_id, alternates);
+function tubeshift_bg_filter_alternates_display(alternates) {
+    const display_platform = tubeshift_bg_options_get("display_platform");
+    var filtered = [];
+
+    if (alternates == undefined) {
+        return undefined;
+    }
+
+    for (const location of alternates) {
+        const platform_name = location.get_name();
+        const should_display = display_platform[platform_name];
+
+        if (should_display) {
+            filtered.push(location)
+        };
+    }
+
+    return filtered;
+}
+
+function tubeshift_bg_alternates_ready(tab_id, platform_name, video) {
+    const locations = video.get_locations();
+
+    tubeshift_bg_set_tab_info_platform_name(tab_id, platform_name);
+    tubeshift_bg_set_tab_info_alternates(tab_id, locations);
     tubeshift_bg_update_notification(tab_id);
 }
 
@@ -215,11 +272,16 @@ function tubeshift_bg_update_notification(tab_id) {
     const alternates = tubeshift_bg_get_tab_info_alternates(tab_id);
     const tab_platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
 
-    if (alternates != undefined && alternates.length > 0) {
-        tubeshift_browser_show_available(tab_id, alternates.length);
+    if (alternates != undefined) {
+        const filtered_alternates = tubeshift_bg_filter_alternates_display(alternates);
+        const num_alternates = filtered_alternates.length;
 
-        if (tubeshift_bg_options_get('show_overlay')) {
-            tubeshift_browser_send_tab_message(tab_id, { name: "available", count: alternates.length });
+        if (num_alternates > 0) {
+            tubeshift_browser_show_available(tab_id, num_alternates);
+
+            if (tubeshift_bg_options_get('show_overlay')) {
+                tubeshift_browser_send_tab_message(tab_id, { name: "available", count: num_alternates });
+            }
         }
     } else if(tab_platform_name != undefined) {
         tubeshift_browser_show_active(tab_id);

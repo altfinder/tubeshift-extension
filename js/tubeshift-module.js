@@ -37,7 +37,7 @@ console.log("Loading TubeShift module support");
         for (const i in tubeshift_platform_handlers) {
             let platform = tubeshift_platform_handlers[i];
 
-            if (platform.get_name() == platform_name) {
+            if (platform.name == platform_name) {
                 return platform.handler;
             }
         }
@@ -65,12 +65,15 @@ console.log("Loading TubeShift module support");
     function tubeshift_module_call_platform_handlers(tab_id, url) {
         for(const i in tubeshift_platform_handlers) {
             let platform = tubeshift_platform_handlers[i];
+            var returned;
 
-            if (platform.handler(tab_id, url)) {
-                return true;
+            returned = platform.handler(tab_id, url);
+
+            if (returned != undefined) {
+                return returned;
             }
         }
 
-        return false;
+        return undefined;
     }
 }

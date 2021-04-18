@@ -16,12 +16,12 @@ console.log("Loading TubeShift YouTube platform support");
 const tubeshift_platform_youtube_name = "youtube";
 
 {
-    const tubeshift_platform_youtube_urls = {
+    const tubeshift_platform_youtube_hostnames = {
         "www.youtube.com": 1
     };
 
-    function tubeshift_platform_youtube_known_url(url) {
-        return tubeshift_platform_youtube_urls[url.hostname];
+    function tubeshift_platform_youtube_hostname(url) {
+        return tubeshift_platform_youtube_hostnames[url.hostname];
     }
 }
 
@@ -34,18 +34,14 @@ function tubeshift_platform_youtube_get_video_id(url) {
 }
 
 function tubeshift_platform_youtube_navigation_handler(tab_id, url) {
-    if (! tubeshift_platform_youtube_known_url(url)) {
-        return false;
+    if (! tubeshift_platform_youtube_hostname(url)) {
+        return undefined;
     }
 
-    let video_id = tubeshift_platform_youtube_get_video_id(url);
-
-    if (video_id != undefined) {
-        tubeshift_bg_handle_watch_event(tab_id, tubeshift_platform_youtube_name, video_id);
-        return true;
-    }
-
-    return false;
+    return {
+        platform_name: tubeshift_platform_youtube_name,
+        platform_id: tubeshift_platform_youtube_get_video_id(url)
+    };
 }
 
 tubeshift_module_add_platform_name(tubeshift_platform_youtube_name);

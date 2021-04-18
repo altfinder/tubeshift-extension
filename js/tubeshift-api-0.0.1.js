@@ -147,7 +147,6 @@ function TubeShiftVideo(api, result_in) {
         return this.api_result.data.content_id;
     }
 
-
     this.remove_platform = function(platform_name) {
         // make sure cached_locations is defined
         this.get_locations();
@@ -320,7 +319,10 @@ function TubeShiftAPI(user_config) {
             }
 
             this.get_video(lookup_spec).then(video => {
-                video.remove_platform(lookup_spec.platform_name);
+                if (video.known()) {
+                    video.remove_platform(lookup_spec.platform_name);
+                }
+
                 resolve(video);
             });
         });
