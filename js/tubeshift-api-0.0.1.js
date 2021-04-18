@@ -111,7 +111,7 @@ function TubeShiftLocation(api, data) {
 
     this.meta = function() {
         return new Promise((resolve, error) => {
-            api.get_meta({ platform_name: this.name, platform_id: this.id })
+            api.get_meta({ platform_name: this.get_name(), platform_id: this.get_id() })
                 .then(resolve)
                 .catch(error);
         });
