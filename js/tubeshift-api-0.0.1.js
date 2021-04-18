@@ -165,6 +165,18 @@ function TubeShiftVideo(api, result_in) {
         return;
     }
 
+    this.get_platform = function(platform_name) {
+        const locations = this.get_locations();
+
+        for(i of locations) {
+            if (i.get_name() == platform_name) {
+                return i;
+            }
+        }
+
+        return undefined;
+    }
+
     function _make_locations(api, locations) {
         var location_objects = [];
 
