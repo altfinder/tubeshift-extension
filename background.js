@@ -176,6 +176,10 @@ function tubeshift_bg_handle_navigation_event(tab_id, url_string) {
 }
 
 function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
+    if (! tubeshift_bg_policy_anon_data_collection()) {
+        return;
+    }
+
     tubeshift_bg_set_tab_info_platform_name(tab_id, platform_name);
 
     tubeshift_bg_fetch_platform_info(platform_name, platform_id)
