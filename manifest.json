@@ -15,7 +15,8 @@
     ],
 
     "optional_permissions": [
-      "<all_urls>"
+      "https://www.bitchute.com/*",
+      "https://www.youtube.com/*"
     ],
 
     "options_ui": {
