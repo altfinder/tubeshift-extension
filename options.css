@@ -22,3 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .alert {
     background-color: salmon;
 }
+
+.host-permission-setting {
+    display: inline-block;
+}

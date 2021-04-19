@@ -11,8 +11,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift Rumble platform support");
-
 const tubeshift_platform_rumble_name = "rumble";
 
 tubeshift_module_add_platform_name(tubeshift_platform_rumble_name);

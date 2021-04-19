@@ -3,8 +3,6 @@
 // This is not open-source software. You may not use or distribute this software
 // with out authorization.
 
-console.log("Loading TubeShift Popup");
-
 let alternates_template;
 let background_page;
 let from_content_script = false;
@@ -63,8 +61,6 @@ async function tubeshift_popup_start() {
     }
 
     await tubeshift_popup_populate_alternates(tab_id);
-
-    console.log("TubeShift Popup started");
 
     return;
 }

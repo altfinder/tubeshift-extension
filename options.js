@@ -11,29 +11,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift options page");
-
 const anonymous_data_collection_div = document.querySelector("#extension_settings #setting-anonymous-data-collection");
 let background_page;
 
 async function tubeshift_options_start() {
     background_page = await tubeshift_browser_get_bg_page();
-    let anonymous_data_collection_element =  document.querySelector("#extension_settings input[name=enable_anonymous_data_collection]");
-    let read_privacy_policy_element = document.querySelector("#extension_settings #read_privacy_policy");
 
-    for(let element of document.querySelectorAll("#extension_settings input[type=checkbox]")) {
-        tubeshift_options_ui_init_boolean_element(element);
-    }
+    let anonymous_data_collection_element =  document.querySelector("#extension_settings input.option-input[name=enable_anonymous_data_collection]");
+    let read_privacy_policy_element = document.querySelector("#read_privacy_policy");
 
     read_privacy_policy_element.onclick = function(element) {
         tubeshift_browser_create_tab('/privacy.txt');
         return false;
     };
 
+    for(let element of document.querySelectorAll("#extension_settings input.option-input[type=checkbox]")) {
+        tubeshift_options_ui_init_boolean_element(element);
+    }
+
+    for(let element of document.querySelectorAll("#extension_settings input.host-permission-input[type=checkbox]")) {
+        tubeshift_options_init_host_permission_element(element);
+    }
+
     anonymous_data_collection_element.oninput = tubeshift_options_ui_handle_anonymous_data_collection_change;
     tubeshift_options_ui_handle_anonymous_data_collection_change({ target: anonymous_data_collection_element });
-
-    console.log("TubeShift options page started");
 }
 
 function tubeshift_options_ui_handle_anonymous_data_collection_change(event) {
@@ -44,6 +45,40 @@ function tubeshift_options_ui_handle_anonymous_data_collection_change(event) {
     } else {
         anonymous_data_collection_div.classList.add("alert");
     }
+}
+
+function tubeshift_options_update_permission_element(element, checked) {
+    element.checked = checked;
+    element.onchange(element);
+}
+
+function tubeshift_options_init_host_permission_element(element) {
+    const platform_name = element.name;
+    const watch_patterns = background_page.tubeshift_module_get_watch_patterns(platform_name);
+    const setting_div = document.querySelector('#host-permission-div-' + platform_name);
+
+    element.onchange = function() {
+        if (element.checked) {
+            setting_div.classList.remove("alert");
+        } else {
+            setting_div.classList.add("alert");
+        }
+    }
+
+    element.onclick = function() {
+        if (element.checked) {
+            tubeshift_browser_request_hosts(watch_patterns)
+                .then(result => tubeshift_options_update_permission_element(element, result));
+        } else {
+            tubeshift_browser_remove_hosts(watch_patterns)
+                .then(result => tubeshift_options_update_permission_element(element, ! result));
+        }
+    }
+
+    background_page.tubeshift_browser_contains_hosts(watch_patterns)
+        .then(result => { tubeshift_options_update_permission_element(element, result) });
+
+    element.disabled = false;
 }
 
 async function tubeshift_options_ui_init_boolean_element(element) {

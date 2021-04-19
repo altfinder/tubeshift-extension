@@ -11,21 +11,148 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift background page");
+console.log("Loading TubeShift extension");
+
+const tubeshift_bg_options_version = 1;
 
 const tubeshift_default_options = {
     first_run: true,
     enable_anonymous_data_collection: true,
     show_overlay: true,
 
-    display_platform: {
+    options_version: tubeshift_bg_options_version,
+
+    seen_access_watch_page: {
+        bitchute: true,
+        youtube: true,
+    },
+
+    lookup_platform: {
+        bitchute: true,
+        youtube: true,
+    },
+
+    show_platform: {
         bitchute: true,
         dailymotion: true,
         odysee: true,
         rumble: true,
         youtube: false,
-    }
+    },
+
+    overlay_platform: {
+        bitchute: true,
+        youtube: true,
+    },
 };
+
+function tubeshift_bg_set_option_defaults(loaded_options) {
+    for(const option_name in tubeshift_default_options) {
+        if(loaded_options[option_name] == undefined) {
+            loaded_options[option_name] = tubeshift_default_options[option_name];;
+            changed = true;
+        }
+
+        if (option_name == "seen_access_watch_page") {
+            for (const key in tubeshift_default_options[option_name]) {
+                if (loaded_options[option_name][key] == undefined) {
+                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
+                    changed = true;
+                }
+            }
+        }
+
+        if (option_name == "show_platform") {
+            for (const key in tubeshift_default_options[option_name]) {
+                if (loaded_options[option_name][key] == undefined) {
+                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
+                    changed = true;
+                }
+            }
+        }
+
+        if (option_name == "lookup_platform") {
+            for (const key in tubeshift_default_options[option_name]) {
+                if (loaded_options[option_name][key] == undefined) {
+                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
+                    changed = true;
+                }
+            }
+        }
+
+        if (option_name == "overlay_platform") {
+            for (const key in tubeshift_default_options[option_name]) {
+                if (loaded_options[option_name][key] == undefined) {
+                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
+                    changed = true;
+                }
+            }
+        }
+    }
+
+    return loaded_options;
+}
+
+function tubeshift_bg_migrate_options_0(options) {
+    if (options.options_version != 0) {
+        throw "Migration handler for options version 0 got another version: '" + options.options_version + "'";
+    }
+
+    // The show_overlay option becomes the default value for the
+    // platform specific overlay_platform.$platform_name options
+    if (options.show_overlay != undefined) {
+        console.log("  Importing existing show_overlay key");
+        const overlay_default = options.show_overlay;
+
+        if (options.overlay_platform == undefined) {
+            options.overlay_platform = {};
+        }
+
+        for(platform_name in tubeshift_default_options.overlay_platform) {
+            if (! platform_name in options.overlay_platform || options.overlay_platform[platform_name] == undefined) {
+                options.overlay_platform[platform_name] = overlay_default;
+            }
+        }
+
+        delete options.show_overlay;
+    }
+
+    options.options_version = 1;
+
+    return;
+}
+
+const tubeshift_bg_migrate_handlers = [
+    tubeshift_bg_migrate_options_0,
+];
+
+function tubeshift_bg_migrate_options(options) {
+    let changed = false;
+
+    if (Object.keys(options).length == 0) {
+        // empty options has nothing to migrate
+        console.log("won't migrate empty options");
+        return changed;
+    }
+
+    if (options.options_version == undefined) {
+        options.options_version = 0;
+        changed = true;
+    }
+
+    for(let i = 0; i < tubeshift_bg_options_version; i++) {
+        const migrate_function = tubeshift_bg_migrate_handlers[i];
+
+        if (migrate_function == undefined) {
+            throw "migrate function was missing for options version: '" + i + "'";
+        }
+
+        migrate_function(options);
+        changed = true;
+    }
+
+    return changed;
+}
 
 {
     let tubeshift_options = {};
@@ -35,23 +162,15 @@ const tubeshift_default_options = {
         let changed = false;
 
         if (loaded_options == undefined) {
-            loaded_options = {};
+            loaded_options = tubeshift_default_options;
+            changed = true;
+        } else if (loaded_options.options_version == undefined || loaded_options.options_version < tubeshift_bg_options_version) {
+            tubeshift_bg_migrate_options(loaded_options);
+            changed = true;
         }
 
-        for(const option_name in tubeshift_default_options) {
-            if(loaded_options[option_name] == undefined) {
-                loaded_options[option_name] = tubeshift_default_options[option_name];;
-                changed = true;
-            }
-
-            if (option_name == "display_platform") {
-                for (const key in tubeshift_default_options[option_name]) {
-                    if (loaded_options[option_name][key] == undefined) {
-                        loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
-                        changed = true;
-                    }
-                }
-            }
+        if (tubeshift_bg_set_option_defaults(loaded_options)) {
+            changed = true;
         }
 
         tubeshift_options = loaded_options;
@@ -62,8 +181,8 @@ const tubeshift_default_options = {
         }
     }
 
-    async function tubeshift_bg_options_save() {
-        await tubeshift_browser_storage_set("options", tubeshift_options);
+    function tubeshift_bg_options_save() {
+        return tubeshift_browser_storage_set("options", tubeshift_options);
     }
 
     function tubeshift_bg_options_get(option_name) {
@@ -86,6 +205,11 @@ const tubeshift_default_options = {
         }
 
         await tubeshift_bg_options_save();
+    }
+
+    var tubeshift_bg_options_reset = function() {
+        tubeshift_options = tubeshift_default_options;
+        return tubeshift_bg_options_save();
     }
 }
 
@@ -139,7 +263,6 @@ const tubeshift_default_options = {
     }
 
     function tubeshift_bg_set_tab_info_alternates(tab_id, alternates_in) {
-        console.log("setting tab info: ", alternates_in);
         tubeshift_tab_info[tab_id].alternates = alternates_in;
     }
 }
@@ -180,7 +303,12 @@ function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
         return;
     }
 
+    if (! tubeshift_bg_options_get("lookup_platform." + platform_name)) {
+        return;
+    }
+
     tubeshift_bg_set_tab_info_platform_name(tab_id, platform_name);
+    tubeshift_bg_update_notification(tab_id);
 
     tubeshift_bg_fetch_platform_info(platform_name, platform_id)
         .then(video => {
@@ -247,7 +375,7 @@ function tubeshift_bg_fetch_platform_meta(name, id) {
 }
 
 function tubeshift_bg_filter_alternates_display(alternates) {
-    const display_platform = tubeshift_bg_options_get("display_platform");
+    const show_platform = tubeshift_bg_options_get("show_platform");
     var filtered = [];
 
     if (alternates == undefined) {
@@ -256,7 +384,7 @@ function tubeshift_bg_filter_alternates_display(alternates) {
 
     for (const location of alternates) {
         const platform_name = location.get_name();
-        const should_display = display_platform[platform_name];
+        const should_display = show_platform[platform_name];
 
         if (should_display) {
             filtered.push(location)
@@ -284,7 +412,7 @@ function tubeshift_bg_update_notification(tab_id) {
         if (num_alternates > 0) {
             tubeshift_browser_show_available(tab_id, num_alternates);
 
-            if (tubeshift_bg_options_get('show_overlay')) {
+            if (tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
                 tubeshift_browser_send_tab_message(tab_id, { name: "available", count: num_alternates });
             }
         }

@@ -11,8 +11,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift DailyMotion platform support");
-
 const tubeshift_platform_dailymotion_name = "dailymotion";
 
 tubeshift_module_add_platform_name(tubeshift_platform_dailymotion_name);

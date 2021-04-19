@@ -26,10 +26,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <body>
     <form id="extension_settings">
       <div class="setting_group">
+        <h1>Permissions</h1>
+
+        <h2>Access watch pages</h2>
+        <p>
+          Allow detailed access to the watch page on a video website. Required for the
+          visual overlay to work.
+        </p>
+        <div id="host-permission-div-bitchute" class="setting host-permission-setting">
+          <h3>BitChute</h2>
+          <input class="host-permission-input" name="bitchute" type="checkbox" disabled>
+        </div>
+        <div id="host-permission-div-youtube" class="setting host-permission-setting">
+          <h3>YouTube</h2>
+          <input class="host-permission-input" name="youtube" type="checkbox" disabled>
+        </div>
+      </div>
+
+      <div class="setting_group">
         <h1>Privacy</h1>
         <div id="setting-anonymous-data-collection" class="setting">
           <h2>Anonymous Data Collection</h2>
-          <input name="enable_anonymous_data_collection" type="checkbox" disabled>
+          <input class="option-input" name="enable_anonymous_data_collection" type="checkbox" disabled>
           <button id=read_privacy_policy type=button>Read privacy policy</button>
           <p>
             In order to function this extension must send the following anonymous information to the TubeShift servers:
@@ -44,54 +62,51 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       </div>
 
       <div class="setting_group">
-        <h1>Interface</h1>
-        <div class="setting">
-          <h2>Show Overlay Over Video</h2>
-          <input name="show_overlay" type="checkbox" disabled>
-          <p>
-            When an alternate video is available show the TubeShift logo on top of the video.
-          </p>
-        </div>
-      </div>
-
-      <div class="setting_group">
         <h1>Platforms</h1>
-        <div class="setting">
-          <h2>Enable Bitchute</h2>
-          <input name="display_platform.bitchute" type="checkbox" disabled>
-          <p>
-            Show notifications when BitChute is one of the available video platforms.
-          </p>
-        </div>
-
-        <div class="setting">
-          <h2>Enable DailyMotion</h2>
-          <input name="display_platform.dailymotion" type="checkbox" disabled>
-          <p>
-            Show notifications when DailyMotion is one of the available video platforms.
-          </p>
-        </div>
-        <div class="setting">
-          <h2>Enable Odysee</h2>
-          <input name="display_platform.odysee" type="checkbox" disabled>
-          <p>
-            Show notifications when Odysee is one of the available video platforms.
-          </p>
-        </div>
-        <div class="setting">
-          <h2>Enable Rumble</h2>
-          <input name="display_platform.rumble" type="checkbox" disabled>
-          <p>
-            Show notifications when Rumble is one of the available video platforms.
-          </p>
-        </div>
-        <div class="setting">
-          <h2>Enable YouTube</h2>
-          <input name="display_platform.youtube" type="checkbox" disabled>
-          <p>
-            Show notifications when YouTube is one of the available video platforms.
-          </p>
-        </div>
+        <p>
+          Control the behavior for each video website. <strong>Show</strong> makes the platform
+          available in the known alternates list. <strong>Lookup</strong> turns checking for an
+          alternate on and off. <strong>Overlay</strong> turns the visual overlay indicator on
+          and off for each website.
+        </p>
+        <table>
+          <tr>
+            <th></th>
+            <th>Show</th>
+            <th>Lookup</th>
+            <th>Overlay</th>
+          </td>
+          <tr>
+            <td><h2>Bitchute</h2></td>
+            <td><input class="option-input" name="show_platform.bitchute" type="checkbox" disabled></td>
+            <td><input class="option-input" name="lookup_platform.bitchute" type="checkbox" disabled></td>
+            <td><input class="option-input" name="overlay_platform.bitchute" type="checkbox" disabled></td>
+          </tr>
+          <tr>
+            <td><h2>DailyMotion</h2></td>
+            <td><input class="option-input" name="show_platform.dailymotion" type="checkbox" disabled></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><h2>Odysee</h2></td>
+            <td><input class="option-input" name="show_platform.odysee" type="checkbox" disabled></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><h2>Rumble</h2></td>
+            <td><input class="option-input" name="show_platform.rumble" type="checkbox" disabled></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><h2>YouTube</h2></td>
+            <td><input class="option-input" name="show_platform.youtube" type="checkbox" disabled></td>
+            <td><input class="option-input" name="lookup_platform.youtube" type="checkbox" disabled></td>
+            <td><input class="option-input" name="overlay_platform.youtube" type="checkbox" disabled></td>
+          </tr>
+        </table>
       </div>
     </form>
   </body>

@@ -11,8 +11,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift content script");
-
 const keycode_esc = 27;
 
 function TubeShiftOverlayButton(click_handler) {

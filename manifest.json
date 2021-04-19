@@ -9,11 +9,13 @@
     },
 
     "permissions": [
-      "https://www.bitchute.com/video/*",
-      "https://www.youtube.com/watch",
       "storage",
       "tabs",
       "webNavigation"
+    ],
+
+    "optional_permissions": [
+      "<all_urls>"
     ],
 
     "options_ui": {

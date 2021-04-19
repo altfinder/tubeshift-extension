@@ -11,21 +11,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift Bitchute platform support");
-
 const tubeshift_platform_bitchute_name = "bitchute";
+const tubeshift_platform_bitchute_patterns = [ "https://www.bitchute.com/video/*/" ];
+const tubeshift_platform_bitchute_hostname = "www.bitchute.com";
 
-{
-    const tubeshift_platform_bitchute_hostnames = {
-        "www.bitchute.com": 1
-    };
-
-    function tubeshift_platform_bitchute_hostname(url) {
-        return tubeshift_platform_bitchute_hostnames[url.hostname];
-    }
+function tubeshift_platform_bitchute_watch_patterns() {
+    return tubeshift_platform_bitchute_patterns;
 }
 
 function tubeshift_platform_bitchute_get_video_id(url) {
+    if (url.hostname != tubeshift_platform_bitchute_hostname) {
+        return undefined;
+    }
+
     const parts = url.pathname.split('/');
 
     if (parts.length <= 3) {
@@ -42,10 +40,6 @@ function tubeshift_platform_bitchute_get_video_id(url) {
 }
 
 function tubeshift_platform_bitchute_navigation_handler(tab_id, url) {
-    if (! tubeshift_platform_bitchute_hostname(url)) {
-        return undefined;
-    }
-
     const platform_id = tubeshift_platform_bitchute_get_video_id(url);
 
     if (! platform_id) {
@@ -59,4 +53,5 @@ function tubeshift_platform_bitchute_navigation_handler(tab_id, url) {
 }
 
 tubeshift_module_add_platform_name(tubeshift_platform_bitchute_name);
+tubeshift_module_set_watch_patterns(tubeshift_platform_bitchute_name, tubeshift_platform_bitchute_watch_patterns());
 tubeshift_module_set_platform_handler(tubeshift_platform_bitchute_name, tubeshift_platform_bitchute_navigation_handler);
