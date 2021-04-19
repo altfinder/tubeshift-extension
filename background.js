@@ -167,7 +167,13 @@ function tubeshift_bg_migrate_options(options) {
             loaded_options = tubeshift_default_options;
             changed = true;
         } else if (loaded_options.options_version == undefined || loaded_options.options_version < tubeshift_bg_options_version) {
-            tubeshift_bg_migrate_options(loaded_options);
+            try {
+                tubeshift_bg_migrate_options(loaded_options);
+            } catch (error) {
+                "Using default options because migration failed: " + error;
+                loaded_options = tubeshift_default_options;
+            }
+
             changed = true;
         }
 
