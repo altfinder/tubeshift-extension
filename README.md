@@ -78,23 +78,6 @@ them to. This has lead to the modularity being clumsy and painful. The way modul
 is implemented needs to be revisted and the code refactored to handle multiple
 video platforms better.
 
-### Add BitChute Notifications
-
-Right now only the user is only informed about alternates for YouTube videos
-even though alternatives are known for any of the platforms the API supports.
-
-BitChute only provides videos in low resolution so it makes sense to prioritize
-adding BitChute as a platform that can notify users about an alternative since
-there is a high likelyhood that the video is available another place with
-a higher quality.
-
-### Enable/Disable Video Platforms
-
-The user should be able to select if a video platform is going to be ignored
-or not. For instance if the user never wants to see alternatives on the BitChute
-platform then the user should be able to disable BitChute by unchecking an entry
-in the options UI.
-
 ### User Controlled Alternatives Display Order
 
 Currently the display order of alternatives is controlled by the API which returns

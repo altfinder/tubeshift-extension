@@ -11,7 +11,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift Chrome browser support (also seems to work with Firefox)");
+// Chrome browser implementation
+// Also works with Firefox
 
 {
     const content_script_js_files = [
@@ -25,12 +26,22 @@ console.log("Loading TubeShift Chrome browser support (also seems to work with F
         for (const js_file of content_script_js_files) {
             await tubeshift_browser_run_tab_script(tab_id, js_file);
         }
+
+        return;
     }
 }
 
-async function tubeshift_browser_run_tab_script(tab_id, path) {
-    return await new Promise((resolve, reject) => {
-        chrome.tabs.executeScript(tab_id, { file: path, runAt: "document_idle" }, resolve);
+function tubeshift_browser_run_tab_script(tab_id, path) {
+    return new Promise((resolve, error) => {
+        chrome.tabs.executeScript(tab_id, { file: path, runAt: "document_idle" }, (result) => {
+            const last_error = chrome.runtime.lastError;
+
+            if (last_error) {
+                error(chrome.runtime.lastError);
+            }
+
+            resolve(result);
+        });
     });
 }
 
@@ -197,20 +208,88 @@ async function tubeshift_browser_get_bg_page() {
         resolve();
     }
 
+    var tubeshift_browser_can_send_tab_message = async function(tab_id) {
+        const platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
+
+        if (platform_name == undefined) {
+            return false;
+        }
+
+        const patterns = tubeshift_module_get_watch_patterns(platform_name);
+
+        if (patterns == undefined) {
+            return false;
+        }
+
+        return await tubeshift_browser_contains_hosts(patterns);
+    }
+
     var tubeshift_browser_send_tab_message = async (tab_id, message) => {
+        if (! await tubeshift_browser_can_send_tab_message(tab_id)) {
+            return;
+        }
+
         if (! port_by_tab_id[tab_id]) {
             if (! promise_by_tab_id[tab_id]) {
-                promise_by_tab_id[tab_id] = new Promise(resolve => {
+                promise_by_tab_id[tab_id] = new Promise((resolve, error) => {
                     resolve_by_tab_id[tab_id] = resolve;
-                    tubeshift_browser_init_content_script(tab_id);
+                    tubeshift_browser_init_content_script(tab_id)
+                        .catch(error);
                 });
             }
 
-            await promise_by_tab_id[tab_id];
+            try {
+                await promise_by_tab_id[tab_id];
+            } catch (e) {
+                console.log("Could not send tab message: " + e);
+            }
+        }
+
+        if (! port_by_tab_id[tab_id]) {
+            return;
         }
 
         port_by_tab_id[tab_id].postMessage(message);
     };
+}
+
+function tubeshift_browser_request_hosts(patterns) {
+    return new Promise((resolve, error) => {
+        const permissions = { origins: patterns };
+        chrome.permissions.request(permissions, result => {
+            if (chrome.runtime.lastError) {
+                error(chrome.runtime.lastError);
+            }
+
+            resolve(result);
+        });
+    });
+}
+
+function tubeshift_browser_remove_hosts(patterns) {
+    return new Promise((resolve, error) => {
+        const permissions = { origins: patterns };
+        chrome.permissions.remove(permissions, result => {
+            if (chrome.runtime.lastError) {
+                error(chrome.runtime.lastError);
+            }
+
+            resolve(result);
+        });
+    });
+}
+
+function tubeshift_browser_contains_hosts(patterns) {
+    return new Promise((resolve, error) => {
+        const permissions = { origins: patterns };
+        return chrome.permissions.contains(permissions, result => {
+            if (chrome.runtime.lastError) {
+                error(chrome.runtime.lastError);
+            }
+
+            resolve(result);
+        });
+    });
 }
 
 function tubeshift_browser_start_bg_page() {
@@ -222,7 +301,9 @@ function tubeshift_browser_start_bg_page() {
 
     chrome.tabs.onActivated.addListener(function(details) {
         chrome.tabs.get(details.tabId, tab => {
-            tubeshift_bg_handle_navigation_event(tab.id, tab.url);
+            if (! chrome.runtime.lastError) {
+                tubeshift_bg_handle_navigation_event(tab.id, tab.url);
+            }
         });
     });
 

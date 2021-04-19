@@ -11,22 +11,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift YouTube platform support");
-
 const tubeshift_platform_youtube_name = "youtube";
+const tubeshift_platform_youtube_watch_url = new URL("https://www.youtube.com/watch");
 
-{
-    const tubeshift_platform_youtube_hostnames = {
-        "www.youtube.com": 1
-    };
-
-    function tubeshift_platform_youtube_hostname(url) {
-        return tubeshift_platform_youtube_hostnames[url.hostname];
-    }
+function tubeshift_platform_youtube_watch_patterns() {
+    return [ tubeshift_platform_youtube_watch_url.href ];
 }
 
 function tubeshift_platform_youtube_get_video_id(url) {
-    if (url.pathname != '/watch') {
+    if (url.hostname != tubeshift_platform_youtube_watch_url.hostname) {
+        return undefined;
+    }
+
+    if (url.pathname != tubeshift_platform_youtube_watch_url.pathname) {
         return undefined;
     }
 
@@ -34,7 +31,9 @@ function tubeshift_platform_youtube_get_video_id(url) {
 }
 
 function tubeshift_platform_youtube_navigation_handler(tab_id, url) {
-    if (! tubeshift_platform_youtube_hostname(url)) {
+    const platform_id = tubeshift_platform_youtube_get_video_id(url);
+
+    if (platform_id == undefined) {
         return undefined;
     }
 
@@ -45,4 +44,5 @@ function tubeshift_platform_youtube_navigation_handler(tab_id, url) {
 }
 
 tubeshift_module_add_platform_name(tubeshift_platform_youtube_name);
+tubeshift_module_set_watch_patterns(tubeshift_platform_youtube_name, tubeshift_platform_youtube_watch_patterns());
 tubeshift_module_set_platform_handler(tubeshift_platform_youtube_name, tubeshift_platform_youtube_navigation_handler);

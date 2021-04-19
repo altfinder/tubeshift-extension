@@ -11,11 +11,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-console.log("Loading TubeShift module support");
-
 {
     let tubeshift_platform_names = { };
-    let tubeshift_platform_handlers = [];
 
     function tubeshift_module_add_platform_name(platform_name) {
         if (tubeshift_platform_names[platform_name]) {
@@ -32,6 +29,30 @@ console.log("Loading TubeShift module support");
     function tubeshift_module_is_platform_name(platform_name) {
         return tubeshift_platform_names[platform_name] || false;
     }
+}
+
+{
+    let platform_watch_patterns = { };
+
+    function tubeshift_module_set_watch_patterns(platform_name, urls) {
+        if (! tubeshift_module_is_platform_name(platform_name)) {
+            throw "invalid platform name: '" + platform_name + "'";
+        }
+
+        if (platform_watch_patterns[platform_name] != undefined) {
+            throw "platform watch urls already registered for platform: " + platform_name;
+        }
+
+        platform_watch_patterns[platform_name] = urls;
+    }
+
+    function tubeshift_module_get_watch_patterns(platform_name) {
+        return platform_watch_patterns[platform_name];
+    }
+}
+
+{
+    let tubeshift_platform_handlers = [];
 
     function tubeshift_module_get_platform_handler(platform_name) {
         for (const i in tubeshift_platform_handlers) {
