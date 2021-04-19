@@ -178,7 +178,6 @@ function tubeshift_bg_migrate_options(options) {
         tubeshift_options = loaded_options;
 
         if (changed) {
-            console.log("showing options UI");
             await tubeshift_bg_options_save();
             tubeshift_browser_show_options();
         }
