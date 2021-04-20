@@ -45,24 +45,18 @@ function tubeshift_browser_run_tab_script(tab_id, path) {
     });
 }
 
-async function tubeshift_browser_storage_get(key) {
-    return await new Promise((resolve, reject) => {
+function tubeshift_browser_storage_get(key) {
+    return new Promise(resolve => {
         chrome.storage.local.get(key, result => {
             resolve(result[key]);
         });
     });
 };
 
-async function tubeshift_browser_storage_set(key, value) {
-    const to_store = {};
-
+function tubeshift_browser_storage_set(key, value) {
+    let to_store = {};
     to_store[key] = value;
-
-    return await new Promise((resolve, reject) => {
-        chrome.storage.local.set(to_store, () => {
-            resolve();
-        });
-    });
+    return new Promise(resolve => chrome.storage.local.set(to_store, resolve));
 }
 
 function tubeshift_browser_get_asset_url(path) {

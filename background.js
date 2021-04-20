@@ -46,6 +46,10 @@ const tubeshift_default_options = {
     },
 };
 
+function tubeshift_bg_clone(clone_from) {
+    return JSON.parse(JSON.stringify(clone_from));
+}
+
 function tubeshift_bg_set_option_defaults(loaded_options, default_values) {
     var changed = false;
 
@@ -134,7 +138,7 @@ function tubeshift_bg_migrate_options(options) {
             let loaded_options = await tubeshift_browser_storage_get("options");
 
             if (loaded_options == undefined) {
-                loaded_options = tubeshift_default_options;
+                loaded_options = tubeshift_bg_clone(tubeshift_default_options);
                 changed = true;
             } else if (loaded_options.options_version == undefined || loaded_options.options_version < tubeshift_bg_options_version) {
                 tubeshift_bg_migrate_options(loaded_options);
@@ -148,7 +152,7 @@ function tubeshift_bg_migrate_options(options) {
             tubeshift_options = loaded_options;
         } catch (error) {
             "Using default values because options init failed: " + error;
-            tubeshift_options = tubeshift_default_options;
+            tubeshift_options = tubeshift_bg_clone(tubeshift_default_options);
             changed = true;
         }
 
@@ -185,7 +189,7 @@ function tubeshift_bg_migrate_options(options) {
     }
 
     var tubeshift_bg_options_reset = function() {
-        tubeshift_options = tubeshift_default_options;
+        tubeshift_options = tubeshift_bg_clone(tubeshift_default_options);
         return tubeshift_bg_options_save();
     }
 }

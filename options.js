@@ -19,11 +19,28 @@ async function tubeshift_options_start() {
 
     let anonymous_data_collection_element =  document.querySelector("#extension_settings input.option-input[name=enable_anonymous_data_collection]");
     let read_privacy_policy_element = document.querySelector("#read_privacy_policy");
+    let factory_reset_enable = document.querySelector("#factory-reset-enable");
+    let factory_reset_button = document.querySelector("#factory-reset-button");
 
-    read_privacy_policy_element.onclick = function(element) {
+    read_privacy_policy_element.onclick = function(event) {
         tubeshift_browser_create_tab('/privacy.txt');
         return false;
     };
+
+    factory_reset_enable.checked = false;
+    factory_reset_button.disabled = true;
+
+    factory_reset_enable.onchange = function(event) {
+        factory_reset_button.disabled = ! factory_reset_enable.checked;
+    };
+
+    factory_reset_enable.disabled = false;
+
+    factory_reset_button.onclick = function(event) {
+        background_page.tubeshift_bg_options_reset().then((result) => {
+            document.location.reload();
+        });
+    }
 
     for(let element of document.querySelectorAll("#extension_settings input.option-input[type=checkbox]")) {
         tubeshift_options_ui_init_boolean_element(element);
