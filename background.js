@@ -47,6 +47,8 @@ const tubeshift_default_options = {
 };
 
 function tubeshift_bg_set_option_defaults(loaded_options) {
+    var changed = false;
+
     for(const option_name in tubeshift_default_options) {
         if(loaded_options[option_name] == undefined) {
             loaded_options[option_name] = tubeshift_default_options[option_name];;
@@ -90,7 +92,7 @@ function tubeshift_bg_set_option_defaults(loaded_options) {
         }
     }
 
-    return loaded_options;
+    return changed;
 }
 
 function tubeshift_bg_migrate_options_0(options) {
@@ -176,6 +178,7 @@ function tubeshift_bg_migrate_options(options) {
         tubeshift_options = loaded_options;
 
         if (changed) {
+            console.log("showing options UI");
             await tubeshift_bg_options_save();
             tubeshift_browser_show_options();
         }
