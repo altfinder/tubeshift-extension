@@ -46,48 +46,16 @@ const tubeshift_default_options = {
     },
 };
 
-function tubeshift_bg_set_option_defaults(loaded_options) {
+function tubeshift_bg_set_option_defaults(loaded_options, default_values) {
     var changed = false;
 
-    for(const option_name in tubeshift_default_options) {
+    for(const option_name in default_values) {
         if(loaded_options[option_name] == undefined) {
-            loaded_options[option_name] = tubeshift_default_options[option_name];;
+            loaded_options[option_name] = tubeshift_default_options[option_name];
             changed = true;
-        }
-
-        if (option_name == "seen_access_watch_page") {
-            for (const key in tubeshift_default_options[option_name]) {
-                if (loaded_options[option_name][key] == undefined) {
-                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
-                    changed = true;
-                }
-            }
-        }
-
-        if (option_name == "show_platform") {
-            for (const key in tubeshift_default_options[option_name]) {
-                if (loaded_options[option_name][key] == undefined) {
-                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
-                    changed = true;
-                }
-            }
-        }
-
-        if (option_name == "lookup_platform") {
-            for (const key in tubeshift_default_options[option_name]) {
-                if (loaded_options[option_name][key] == undefined) {
-                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
-                    changed = true;
-                }
-            }
-        }
-
-        if (option_name == "overlay_platform") {
-            for (const key in tubeshift_default_options[option_name]) {
-                if (loaded_options[option_name][key] == undefined) {
-                    loaded_options[option_name][key] = tubeshift_default_options[option_name][key];
-                    changed = true;
-                }
+        } else if (typeof loaded_options[option_name] == "object") {
+            if (tubeshift_bg_set_option_defaults(loaded_options[option_name], default_values[option_name])) {
+                changed = true;
             }
         }
     }
@@ -160,28 +128,29 @@ function tubeshift_bg_migrate_options(options) {
     let tubeshift_options = {};
 
     var tubeshift_bg_options_init = async function () {
-        let loaded_options = await tubeshift_browser_storage_get("options");
         let changed = false;
 
-        if (loaded_options == undefined) {
-            loaded_options = tubeshift_default_options;
-            changed = true;
-        } else if (loaded_options.options_version == undefined || loaded_options.options_version < tubeshift_bg_options_version) {
-            try {
-                tubeshift_bg_migrate_options(loaded_options);
-            } catch (error) {
-                "Using default options because migration failed: " + error;
+        try {
+            let loaded_options = await tubeshift_browser_storage_get("options");
+
+            if (loaded_options == undefined) {
                 loaded_options = tubeshift_default_options;
+                changed = true;
+            } else if (loaded_options.options_version == undefined || loaded_options.options_version < tubeshift_bg_options_version) {
+                tubeshift_bg_migrate_options(loaded_options);
+                changed = true;
             }
 
+            if (tubeshift_bg_set_option_defaults(loaded_options, tubeshift_default_options)) {
+                changed = true;
+            }
+
+            tubeshift_options = loaded_options;
+        } catch (error) {
+            "Using default values because options init failed: " + error;
+            tubeshift_options = tubeshift_default_options;
             changed = true;
         }
-
-        if (tubeshift_bg_set_option_defaults(loaded_options)) {
-            changed = true;
-        }
-
-        tubeshift_options = loaded_options;
 
         if (changed) {
             await tubeshift_bg_options_save();
