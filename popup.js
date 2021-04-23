@@ -130,21 +130,17 @@ async function tubeshift_popup_populate_alternates(tab_id) {
             // FIXME Odysee links are total hacks right now and resolve to the wrong video page
             // which is fixed with a redirect via javascript after the page loads in a browser. This
             // provides the wrong metadata for the card service so Odysee is skipped for now
-            if (location.get_name() != 'odysee') {
-                background_page.tubeshift_bg_fetch_platform_meta(location.get_name(), location.get_id())
-                    .then(meta => {
-                        if (! meta.known()) {
-                            throw "result was not known";
-                        }
+            background_page.tubeshift_bg_fetch_platform_meta(location.get_name(), location.get_id())
+                .then(meta => {
+                    if (! meta.known()) {
+                        throw "result was not known";
+                    }
 
-                        title_element.textContent = meta.get_title();
-                        poster_img_element.src = meta.get_thumbnail();
-                    }).catch(error => {
-                        title_element.textContent = '';
-                    });
-            } else {
-                title_element.textContent = '';
-            }
+                    title_element.textContent = meta.get_title();
+                    poster_img_element.src = meta.get_thumbnail();
+                }).catch(error => {
+                    title_element.textContent = '';
+                });
         }
     }
 }
