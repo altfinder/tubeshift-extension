@@ -56,7 +56,7 @@ function tubeshift_bg_set_option_defaults(loaded_options, default_values) {
 
     for(const option_name in default_values) {
         if(loaded_options[option_name] == undefined) {
-            loaded_options[option_name] = tubeshift_default_options[option_name];
+            const default_value = loaded_options[option_name] = default_values[option_name];
             changed = true;
         } else if (typeof loaded_options[option_name] == "object") {
             if (tubeshift_bg_set_option_defaults(loaded_options[option_name], default_values[option_name])) {
