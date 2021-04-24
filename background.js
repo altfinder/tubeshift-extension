@@ -129,6 +129,22 @@ function tubeshift_bg_migrate_options(options) {
     return changed;
 }
 
+function tubeshift_bg_has_undefined_deep(object) {
+    for(key in object) {
+        if (object[key] == undefined) {
+            return true;
+        }
+
+        if (typeof object[key] == 'object') {
+            if (tubeshift_bg_has_undefined_deep(object[key])) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 {
     let tubeshift_options = {};
 
@@ -150,9 +166,14 @@ function tubeshift_bg_migrate_options(options) {
                 changed = true;
             }
 
+            if (tubeshift_bg_has_undefined_deep(loaded_options)) {
+                console.log("Options:", loaded_options);
+                throw "Invalid options: undefined value found";
+            }
+
             tubeshift_options = loaded_options;
         } catch (error) {
-            "Using default values because options init failed: " + error;
+            console.log("Using default values because options init failed: " + error);
             tubeshift_options = tubeshift_bg_clone(tubeshift_default_options);
             changed = true;
         }
