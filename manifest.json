@@ -25,7 +25,7 @@
 
     "background": {
       "scripts": [
-        "js/tubeshift-api-0.0.1.js",
+        "js/tubeshift-api-0.0.2.js",
         "js/tubeshift-module.js",
         "js/tubeshift-browser.js",
         "platform/bitchute.js",

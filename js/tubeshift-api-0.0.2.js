@@ -288,7 +288,7 @@ function TubeShiftAPI(user_config) {
 
     function _make_video_by_platform_path(platform_name, platform_id) {
         let buffer = "/video/" + encodeURIComponent(platform_name);
-        buffer += "/" + encodeURIComponent(platform_id);
+        buffer += "/" + platform_id;
         return buffer;
     }
 

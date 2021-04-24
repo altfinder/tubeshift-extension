@@ -13,4 +13,40 @@
 
 const tubeshift_platform_odysee_name = "odysee";
 
+const tubeshift_platform_odysee_patterns = [ "https://odysee.com/*" ];
+const tubeshift_platform_odysee_hostname = "odysee.com";
+
+function tubeshift_platform_odysee_watch_patterns() {
+    return tubeshift_platform_odysee_patterns;
+}
+
+function tubeshift_platform_odysee_get_video_id(url) {
+    if (url.hostname != tubeshift_platform_odysee_hostname) {
+        return undefined;
+    }
+
+    if (url.pathname.match(/^\/@/)) {
+        return url.pathname.slice(1);
+    };
+
+    console.log("here");
+
+    return undefined;
+}
+
+function tubeshift_platform_odysee_navigation_handler(tab_id, url) {
+    const platform_id = tubeshift_platform_odysee_get_video_id(url);
+
+    if (! platform_id) {
+        return undefined;
+    }
+
+    return {
+        platform_name: tubeshift_platform_odysee_name,
+        platform_id: platform_id,
+    };
+}
+
 tubeshift_module_add_platform_name(tubeshift_platform_odysee_name);
+tubeshift_module_set_watch_patterns(tubeshift_platform_odysee_name, tubeshift_platform_odysee_watch_patterns());
+tubeshift_module_set_platform_handler(tubeshift_platform_odysee_name, tubeshift_platform_odysee_navigation_handler);

@@ -29,6 +29,7 @@ const tubeshift_default_options = {
 
     lookup_platform: {
         bitchute: true,
+        odysee: true,
         youtube: true,
     },
 
