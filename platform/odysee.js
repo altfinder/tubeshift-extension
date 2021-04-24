@@ -29,8 +29,6 @@ function tubeshift_platform_odysee_get_video_id(url) {
         return url.pathname.slice(1);
     };
 
-    console.log("here");
-
     return undefined;
 }
 
