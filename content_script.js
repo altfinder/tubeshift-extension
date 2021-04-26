@@ -13,6 +13,60 @@
 
 const keycode_esc = 27;
 
+function TubeShiftTimeout(duration_in, callback_in) {
+    if (callback_in == undefined) {
+        throw "must specify a callback";
+    }
+
+    if (duration_in == undefined) {
+        throw "must specify a timeout in seconds";
+    }
+
+    const callback = callback_in;
+    this.duration = duration_in;
+    this.timeout = undefined;
+    this.started = undefined;
+    this.remaining = undefined;
+
+    function _get_time() {
+        return new Date().getTime();
+    }
+
+    this.start = function () {
+        if (this.timeout != undefined) {
+            throw "can't start a TubeShiftTimeout that has already been started";
+        }
+
+        if (this.remaining != undefined) {
+            var duration = this.remaining;
+        } else {
+            var duration = this.duration;
+        }
+
+        this.timeout = window.setTimeout(callback, duration);
+        this.started = _get_time();
+
+        return this;
+    }
+
+    this.stop = function() {
+        if (this.timeout != undefined) {
+            window.clearTimeout(this.timeout);
+            this.timeout = undefined;
+            this.remaining = undefined;
+            this.started = undefined;
+        }
+
+        return this;
+    }
+}
+
+console.log("Starting timeout");
+const timeout = new TubeShiftTimeout(1000, (timeout) => {
+    console.log("timeout expired");
+}).start();
+console.log("Done starting timeout");
+
 function TubeShiftOverlayButton(click_handler) {
     if (click_handler == undefined) {
         throw "must specify a click handler";
