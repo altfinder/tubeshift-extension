@@ -97,6 +97,10 @@ arrow should start out all grey and wipe from left to white while turning white.
 The wipe duration is the timeout duration for the overlay being displayed so that
 the color change acts as a progress bar for the overlay going away.
 
+Progress has been made here: the overlay image is now an SVG built out of components
+that can be animated by wiping left to right the white/grey color of the TubeShift
+arrow.
+
 ### Automatic Redirect
 
 As an opt-in option for the user TubeShift should automatically redirect the
