@@ -100,8 +100,8 @@ function TubeShiftTimeout(duration_in, callback_in) {
     this.start();
 }
 
-function TubeShiftOverlayButton() {
-    this.show_for = 3500;
+function TubeShiftOverlayButton(config_in) {
+    this.show_for = config_in.show_for;
     this.img_url = tubeshift_browser_get_asset_url('/icons/tubeshift-overlay.png');
     this.stop_timer = undefined;
     this.element = undefined;
@@ -224,12 +224,12 @@ function TubeShiftOverlayButton() {
 {
     var tubeshift_overlay;
 
-    function tubeshift_cs_handle_available(count) {
+    function tubeshift_cs_handle_available(count, config) {
         const video_element = $("video")[0];
         const video_container = $(video_element).parent()[0];
         const old_overlay = tubeshift_overlay;
 
-        tubeshift_overlay = new TubeShiftOverlayButton();
+        tubeshift_overlay = new TubeShiftOverlayButton(config);
         var overlay_element = tubeshift_overlay.element;
 
         $(overlay_element).css("position", "absolute");
@@ -269,8 +269,9 @@ function TubeShiftOverlayButton() {
 }
 
 function tubeshift_cs_handle_message(message) {
+    console.log("got message", message);
     if (message.name == 'available') {
-        tubeshift_cs_handle_available(message.count);
+        tubeshift_cs_handle_available(message.count, message.config);
     } else if (message.name == 'active') {
         tubeshift_cs_handle_active();
     } else if (message.name == 'inactive') {

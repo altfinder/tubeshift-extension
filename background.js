@@ -45,6 +45,10 @@ const tubeshift_default_options = {
         bitchute: true,
         youtube: true,
     },
+
+    overlay_config: {
+        show_for: 7000,
+    },
 };
 
 function tubeshift_bg_clone(clone_from) {
@@ -416,7 +420,8 @@ function tubeshift_bg_update_notification(tab_id) {
             tubeshift_browser_show_available(tab_id, num_alternates);
 
             if (tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
-                tubeshift_browser_send_tab_message(tab_id, { name: "available", count: num_alternates });
+                const overlay_config = tubeshift_bg_options_get("overlay_config");
+                tubeshift_browser_send_tab_message(tab_id, { name: "available", count: num_alternates, config: overlay_config });
             }
         }
     } else if(tab_platform_name != undefined) {
