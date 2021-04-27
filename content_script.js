@@ -146,6 +146,7 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).css('cursor', 'pointer');
         $(p_e).on("click", this._close_clicked);
 
+        $(img_e).on("load", () => { console.log("stuff", img_e.contentDocument) });
         img_e.src = this.img_url;
         $(img_e).css("height", "100%");
         $(img_e).css("position", "absolute");

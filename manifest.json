@@ -47,6 +47,6 @@
     },
 
     "web_accessible_resources": [
-      "/icons/tubeshift-overlay.png"
+      "/icons/tubeshift-overlay.svg"
     ]
 }
