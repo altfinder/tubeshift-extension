@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 body {
-    width: 400px;
+    max-width: 600px;
     margin: 1em;
 }
 
@@ -28,6 +28,10 @@ body {
     display: none;
 }
 
+#header {
+    display: inline-block;
+}
+
 #header .extension_title {
     display: inline;
 }
@@ -36,6 +40,14 @@ body {
     height: 2em;
     margin: 5px;
     float: right;
+}
+
+#statistics {
+    display: inline-block;
+}
+
+#alternates {
+    display: inline-block;
 }
 
 #alternate_list {
