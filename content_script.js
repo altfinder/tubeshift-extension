@@ -37,13 +37,11 @@ function TubeShiftTimeout(duration_in, callback_in) {
             throw "can't start a TubeShiftTimeout that has already been started";
         }
 
-        if (this.remaining != undefined) {
-            var duration = this.remaining;
-        } else {
-            var duration = this.duration;
-        }
+        const wrapper = function() {
+            callback(this);
+        };
 
-        this.timeout = window.setTimeout(callback, duration);
+        this.timeout = setTimeout(wrapper, this.duration);
         this.started = _get_time();
 
         return this;
@@ -51,7 +49,7 @@ function TubeShiftTimeout(duration_in, callback_in) {
 
     this.stop = function() {
         if (this.timeout != undefined) {
-            window.clearTimeout(this.timeout);
+            clearTimeout(this.timeout);
             this.timeout = undefined;
             this.remaining = undefined;
             this.started = undefined;
@@ -59,13 +57,48 @@ function TubeShiftTimeout(duration_in, callback_in) {
 
         return this;
     }
-}
 
-console.log("Starting timeout");
-const timeout = new TubeShiftTimeout(1000, (timeout) => {
-    console.log("timeout expired");
-}).start();
-console.log("Done starting timeout");
+    this.reset = function() {
+        this.stop();
+        this.start();
+    }
+
+    this.pause = function() {
+        const now = _get_time();
+
+        // already paused
+        if (this.remaining != undefined) {
+            return;
+        }
+
+        if (this.timeout == undefined) {
+            throw "missing timeout id";
+        }
+
+        if (this.started == undefined) {
+            throw "missing start time";
+        }
+
+        const elapsed = now - this.started;
+        clearTimeout(this.timeout);
+        this.remaining = this.duration - elapsed;
+    }
+
+    this.resume = function() {
+        if (this.remaining == undefined) {
+            throw "can't resume a timeout that is not paused";
+        }
+
+        if (this.remaining < 0) {
+            this.remaining = 0;
+        }
+
+        this.timeout = setTimeout(callback, this.remaining);
+        this.remaining = undefined;
+    }
+
+    this.start();
+}
 
 function TubeShiftOverlayButton(click_handler) {
     if (click_handler == undefined) {
@@ -92,7 +125,7 @@ function TubeShiftOverlayButton(click_handler) {
             return;
         }
 
-        this.stop_timer.resume();
+        this.stop_timer.reset();
     };
 
     this._close = (event) => {
@@ -161,7 +194,9 @@ function TubeShiftOverlayButton(click_handler) {
     };
 
     this.start = async () => {
-        this.stop_timer = $.timer(this.show_for, () => { this.stop() });
+        this.stop_timer = new TubeShiftTimeout(this.show_for, () => {
+            this.stop();
+        });
 
         $(document).on('keyup', this._key_handler);
 
@@ -207,6 +242,7 @@ function tubeshift_cs_handle_available(count) {
     const video_container = $(video_element).parent()[0];
 
     const overlay = new TubeShiftOverlayButton(() => {
+        overlay.stop();
         tubeshift_browser_send_bg_page_message({ name: "shift" });
         video_element.pause();
         return false;
@@ -227,7 +263,7 @@ function tubeshift_cs_handle_message(message) {
     if (message.name == 'available') {
         tubeshift_cs_handle_available(message.count);
     } else {
-        throw "unknown message in content script: " + message.name;
+        console.error("unknown message in content script: " + message.name);
     }
 }
 

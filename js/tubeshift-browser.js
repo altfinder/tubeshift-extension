@@ -17,7 +17,6 @@
 {
     const content_script_js_files = [
         '/js/jquery-3.6.0.js',
-        '/js/jquery.timer-1.0.1.js',
         '/js/tubeshift-browser.js',
         '/content_script.js',
     ];
