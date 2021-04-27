@@ -227,10 +227,17 @@ function TubeShiftOverlayButton(config_in) {
     var tubeshift_overlay;
 
     function tubeshift_cs_handle_available(count, config) {
-        const video_element = $("video")[0];
-        const video_container = $(video_element).parent()[0];
-        const old_overlay = tubeshift_overlay;
+        console.log("got available message");
 
+        console.log("uhm");
+        const video_element = $("video")[0];
+        console.log("uhm");
+        const video_container = $(video_element).parent()[0];
+        console.log("uhm");
+        const old_overlay = tubeshift_overlay;
+        console.log("uhm");
+
+        console.log("creating new overlay");
         tubeshift_overlay = new TubeShiftOverlayButton(config);
         var overlay_element = tubeshift_overlay.element;
 
@@ -249,9 +256,11 @@ function TubeShiftOverlayButton(config_in) {
 
         video_container.appendChild(overlay_element);
 
+        console.log("starting new overlay");
         tubeshift_overlay.start();
 
         if (old_overlay != undefined) {
+            console.log("stopping old overlay");
             old_overlay.stop();
         }
 
@@ -272,18 +281,33 @@ function TubeShiftOverlayButton(config_in) {
 }
 
 function tubeshift_cs_handle_message(message) {
-    if (message.name == 'available') {
-        tubeshift_cs_handle_available(message.count, message.config);
-    } else if (message.name == 'active') {
-        tubeshift_cs_handle_active();
-    } else if (message.name == 'inactive') {
-        tubeshift_cs_handle_inactive();
-    } else {
-        console.error("unknown message in content script: " + message.name);
-    }
+    console.log("got message in tab", message);
+
+    try {
+        if (message.name == 'available') {
+            tubeshift_cs_handle_available(message.count, message.config);
+        } else if (message.name == 'active') {
+            tubeshift_cs_handle_active();
+        } else if (message.name == 'inactive') {
+            tubeshift_cs_handle_inactive();
+        } else {
+            console.error("unknown message in content script: " + message.name);
+        }
+    } catch(e) {
+        // content scripts are eating exceptions on at least FireFox
+        console.error("failure when handling message: ", e);
+        throw e;
+    };
+}
+
+function tubeshift_cs_handle_window_unload() {
+    console.log("document unloading, resetting connections");
+    tubeshift_browser_reset_pg_page_port();
+    console.log("done resetting connections");
 }
 
 function tubeshift_cs_start() {
+    $(window).on("unload", tubeshift_cs_handle_window_unload);
     tubeshift_browser_start_content_script();
     console.log("TubeShift content script started");
 }
