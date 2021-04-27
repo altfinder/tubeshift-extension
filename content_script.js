@@ -130,7 +130,7 @@ function TubeShiftOverlayButton(config_in) {
     this._make_element = () => {
         const div_e = document.createElement('div');
         const p_e = document.createElement('p');
-        const img_e = document.createElement('img');
+        const img_e = document.createElement('object');
 
         $(div_e).hide();
         $(div_e).css("display", "inline-block");
@@ -146,8 +146,14 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).css('cursor', 'pointer');
         $(p_e).on("click", this._close_clicked);
 
-        $(img_e).on("load", () => { console.log("stuff", img_e.contentDocument) });
-        img_e.src = this.img_url;
+        $(img_e).on("load", () => {
+            const svg_doc = img_e.contentDocument;
+            console.log("stuff", img_e.svg_doc);
+            const something = svg_doc.getElementById('white-background');
+            console.log("something", something);
+
+        });
+        img_e.data = this.img_url;
         $(img_e).css("height", "100%");
         $(img_e).css("position", "absolute");
         $(img_e).css("left", "0px");
