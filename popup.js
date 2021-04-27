@@ -60,6 +60,20 @@ async function tubeshift_popup_start() {
         return false;
     }
 
+    background_page.tubeshift_api_get_stats().then(response => {
+        const num_videos = response.content;
+        const num_alternates = response.alternates;
+
+        var stats_text = num_videos.toLocaleString("en-US") + ' videos';
+        stats_text += ' and ' + num_alternates.toLocaleString("en-US");
+        stats_text += ' alternates';
+
+        p_element = document.createElement('p');
+        p_element.textContent = stats_text;
+
+        $('#video-stats-text').replaceWith(p_element);
+    });
+
     await tubeshift_popup_populate_alternates(tab_id);
 
     return;
