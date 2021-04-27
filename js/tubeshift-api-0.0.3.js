@@ -247,6 +247,7 @@ function TubeShiftMeta(api, result_in) {
 function TubeShiftAPI(user_config) {
     const config_defaults = {
         hostname: 'api.tubeshift.info',
+        version: 0,
     };
 
     function _make_config(config) {
@@ -265,12 +266,18 @@ function TubeShiftAPI(user_config) {
 
     this.config = _make_config(user_config);
 
+    this.request_url = function(path) {
+        let url = "https://" + this.config.hostname;
+        url += '/0';
+        url += path;
+        return url;
+    }
+
     this._request = function(path, request_config) {
-        const url = "https://" + this.config.hostname + path;
         let result = { };
 
         return new Promise((resolve, error) => {
-            fetch(url, request_config)
+            fetch(this.request_url(path), request_config)
                 .then(response => {
                     result.response = response;
                     response.json()
@@ -292,6 +299,27 @@ function TubeShiftAPI(user_config) {
         return buffer;
     }
 
+    this.get_stats = function() {
+        const request_path = '/website/stats';
+        return new Promise(resolve => {
+            this._request(request_path).then(response => {
+                if (response == undefined) {
+                    return undefined;
+                }
+
+                if (response.status != 'known') {
+                    return undefined;
+                }
+
+                if (response.data == undefined) {
+                    return undefined;
+                }
+
+                resolve(response.data);
+            });
+        });
+    }
+
     this.get_video = function (lookup_spec) {
         let request_path;
 
@@ -305,9 +333,8 @@ function TubeShiftAPI(user_config) {
 
         return new Promise((resolve, error) => {
             this._request(request_path)
-                .then(response => {
-                    resolve(new TubeShiftVideo(this, response));
-                }).catch(error);
+                .then(response => resolve(new TubeShiftVideo(this, response))
+                ).catch(error);
         });
     }
 
@@ -378,6 +405,10 @@ function TubeShiftAPI(user_config) {
         }
 
         return api_singleton;
+    }
+
+    var tubeshift_api_get_stats = function() {
+        return tubeshift_api__get_singleton().get_stats();
     }
 
     var tubeshift_api_get_video = function(lookup_spec) {

@@ -227,17 +227,10 @@ function TubeShiftOverlayButton(config_in) {
     var tubeshift_overlay;
 
     function tubeshift_cs_handle_available(count, config) {
-        console.log("got available message");
-
-        console.log("uhm");
         const video_element = $("video")[0];
-        console.log("uhm");
         const video_container = $(video_element).parent()[0];
-        console.log("uhm");
         const old_overlay = tubeshift_overlay;
-        console.log("uhm");
 
-        console.log("creating new overlay");
         tubeshift_overlay = new TubeShiftOverlayButton(config);
         var overlay_element = tubeshift_overlay.element;
 
@@ -256,11 +249,9 @@ function TubeShiftOverlayButton(config_in) {
 
         video_container.appendChild(overlay_element);
 
-        console.log("starting new overlay");
         tubeshift_overlay.start();
 
         if (old_overlay != undefined) {
-            console.log("stopping old overlay");
             old_overlay.stop();
         }
 
@@ -281,8 +272,6 @@ function TubeShiftOverlayButton(config_in) {
 }
 
 function tubeshift_cs_handle_message(message) {
-    console.log("got message in tab", message);
-
     try {
         if (message.name == 'available') {
             tubeshift_cs_handle_available(message.count, message.config);
@@ -301,9 +290,7 @@ function tubeshift_cs_handle_message(message) {
 }
 
 function tubeshift_cs_handle_window_unload() {
-    console.log("document unloading, resetting connections");
     tubeshift_browser_reset_pg_page_port();
-    console.log("done resetting connections");
 }
 
 function tubeshift_cs_start() {

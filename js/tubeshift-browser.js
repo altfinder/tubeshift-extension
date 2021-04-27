@@ -23,7 +23,6 @@
 
     var tubeshift_browser_init_content_script = async function (tab_id) {
         for (const js_file of content_script_js_files) {
-            console.log("running script in tab", tab_id, js_file);
             await tubeshift_browser_run_tab_script(tab_id, js_file);
         }
 
@@ -178,7 +177,6 @@ async function tubeshift_browser_get_bg_page() {
         });
 
         port.onDisconnect.addListener(() => {
-            console.log("got disconnect from bg page port");
             bg_page_port = undefined;
         });
 
@@ -208,7 +206,6 @@ async function tubeshift_browser_get_bg_page() {
         }
 
         port.onDisconnect.addListener(port => {
-            console.log("got disconnect from tab", tab_id);
             delete port_by_tab_id[tab_id];
             delete promise_by_tab_id[tab_id];
         });
@@ -241,16 +238,12 @@ async function tubeshift_browser_get_bg_page() {
     }
 
     var tubeshift_browser_send_tab_message = async (tab_id, message) => {
-        // console.log("want to send message to tab", tab_id, message);
         if (! await tubeshift_browser_can_send_tab_message(tab_id)) {
-            // console.log("can't send message to tab", tab_id);
             return;
         }
 
         if (! port_by_tab_id[tab_id]) {
-            console.log("no port by tab id", tab_id);
             if (! promise_by_tab_id[tab_id]) {
-                console.log("no promise by tab id", tab_id);
                 promise_by_tab_id[tab_id] = new Promise((resolve, error) => {
                     resolve_by_tab_id[tab_id] = resolve;
                     tubeshift_browser_init_content_script(tab_id)
@@ -259,10 +252,8 @@ async function tubeshift_browser_get_bg_page() {
             }
 
             try {
-                console.log("waiting for message promise", tab_id);
                 await promise_by_tab_id[tab_id];
             } catch (e) {
-                console.log("Could not send tab message: ", tab_id, e);
             }
         }
 
@@ -270,11 +261,7 @@ async function tubeshift_browser_get_bg_page() {
             return;
         }
 
-        console.log("right before sending message", tab_id);
-
         const returned = port_by_tab_id[tab_id].postMessage(message);
-
-        console.log("sent message", tab_id);
     };
 }
 
