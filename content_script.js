@@ -146,13 +146,6 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).css('cursor', 'pointer');
         $(p_e).on("click", this._close_clicked);
 
-        $(img_e).on("load", () => {
-            const svg_doc = img_e.contentDocument;
-            console.log("stuff", img_e.svg_doc);
-            const something = svg_doc.getElementById('white-background');
-            console.log("something", something);
-
-        });
         img_e.data = this.img_url;
         $(img_e).css("height", "100%");
         $(img_e).css("position", "absolute");
@@ -278,7 +271,6 @@ function TubeShiftOverlayButton(config_in) {
 }
 
 function tubeshift_cs_handle_message(message) {
-    console.log("got message", message);
     if (message.name == 'available') {
         tubeshift_cs_handle_available(message.count, message.config);
     } else if (message.name == 'active') {
