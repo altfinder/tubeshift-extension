@@ -112,6 +112,7 @@ function TubeShiftOverlayButton(config_in) {
         }
 
         this.stop_timer.pause();
+        return true;
     };
 
     this._hover_out = () => {
@@ -120,6 +121,7 @@ function TubeShiftOverlayButton(config_in) {
         }
 
         this.stop_timer.reset();
+        return true;
     };
 
     this._close_clicked = (event) => {
@@ -130,11 +132,12 @@ function TubeShiftOverlayButton(config_in) {
     this._make_element = () => {
         const div_e = document.createElement('div');
         const p_e = document.createElement('p');
-        const img_e = document.createElement('object');
+        const img_e = document.createElement('img');
 
         $(div_e).hide();
         $(div_e).css("display", "inline-block");
         $(div_e).css("height", "72px");
+        $(div_e).hover(this._hover_in, this._hover_out);
 
         p_e.textContent = 'X';
         $(p_e).css("color", "black");
@@ -146,14 +149,12 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).css('cursor', 'pointer');
         $(p_e).on("click", this._close_clicked);
 
-        img_e.data = this.img_url;
+        img_e.src = this.img_url;
         $(img_e).css("height", "100%");
         $(img_e).css("position", "absolute");
         $(img_e).css("left", "0px");
         $(img_e).css("top", "0px");
         $(img_e).css("z-index", 1);
-        $(img_e).css('cursor', 'pointer');
-        $(img_e).hover(this._hover_in, this._hover_out);
 
         div_e.appendChild(p_e);
         div_e.appendChild(img_e);
@@ -180,7 +181,6 @@ function TubeShiftOverlayButton(config_in) {
 
     this.start = function () {
         if (this.stop_timer != undefined) {
-            console.error("why?");
             throw "can't start an overlay that is already started";
         }
 
@@ -237,6 +237,7 @@ function TubeShiftOverlayButton(config_in) {
         $(overlay_element).css("position", "absolute");
         $(overlay_element).css("left", "15px");
         $(overlay_element).css("top", "15px");
+        $(overlay_element).css('cursor', 'pointer');
 
         $(overlay_element).on("click", () => {
             tubeshift_browser_send_bg_page_message({ name: "shift" });
