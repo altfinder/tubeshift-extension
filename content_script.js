@@ -13,6 +13,8 @@
 
 const keycode_esc = 27;
 
+var tubeshift_overlay;
+
 function TubeShiftTimeout(duration_in, callback_in) {
     if (callback_in == undefined) {
         throw "must specify a callback";
@@ -100,11 +102,7 @@ function TubeShiftTimeout(duration_in, callback_in) {
     this.start();
 }
 
-function TubeShiftOverlayButton(click_handler) {
-    if (click_handler == undefined) {
-        throw "must specify a click handler";
-    }
-
+function TubeShiftOverlayButton() {
     this.fade_in = 100;
     this.fade_out = 500;
     this.show_for = 3500;
@@ -128,14 +126,8 @@ function TubeShiftOverlayButton(click_handler) {
         this.stop_timer.reset();
     };
 
-    this._close = (event) => {
+    this._close_clicked = (event) => {
         this.stop();
-        return false;
-    };
-
-    this._handle_shift = () => {
-        this._close();
-        click_handler();
         return false;
     };
 
@@ -153,7 +145,7 @@ function TubeShiftOverlayButton(click_handler) {
         $(p_e).css("top", "5px");
         $(p_e).css("z-index", 2);
         $(p_e).css('cursor', 'pointer');
-        $(p_e).on("click", this._close);
+        $(p_e).on("click", this._close_clicked);
 
         img_e.src = this.img_url;
         $(img_e).css("position", "absolute");
@@ -162,7 +154,6 @@ function TubeShiftOverlayButton(click_handler) {
         $(img_e).css("z-index", 1);
         $(img_e).css('cursor', 'pointer');
         $(img_e).hover(this._hover_in, this._hover_out);
-        $(img_e).on("click", this._handle_shift);
 
         $(div_e).hide();
         div_e.appendChild(p_e);
@@ -241,22 +232,27 @@ function tubeshift_cs_handle_available(count) {
     const video_element = $("video")[0];
     const video_container = $(video_element).parent()[0];
 
-    const overlay = new TubeShiftOverlayButton(() => {
-        overlay.stop();
-        tubeshift_browser_send_bg_page_message({ name: "shift" });
-        video_element.pause();
-        return false;
-    });
+    if (tubeshift_overlay == undefined) {
+        tubeshift_overlay = new TubeShiftOverlayButton();
+    }
 
-    const overlay_element = overlay.element;
+    const overlay_element = tubeshift_overlay.element;
 
     $(overlay_element).css("position", "absolute");
     $(overlay_element).css("left", "15px");
     $(overlay_element).css("top", "15px");
 
+    $(overlay_element).on("click", () => {
+        tubeshift_overlay.stop();
+        tubeshift_browser_send_bg_page_message({ name: "shift" });
+        video_element.pause();
+        return false;
+    });
+
     video_container.appendChild(overlay_element);
 
-    overlay.start();
+    tubeshift_overlay.start();
+    return;
 }
 
 function tubeshift_cs_handle_message(message) {
