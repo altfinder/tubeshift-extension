@@ -201,6 +201,7 @@ function TubeShiftOverlayButton() {
 
         this.stop_timer.stop();
         this._hide();
+        $(this.element).remove();
 
         return false;
     };
@@ -226,37 +227,54 @@ function TubeShiftOverlayButton() {
     function tubeshift_cs_handle_available(count) {
         const video_element = $("video")[0];
         const video_container = $(video_element).parent()[0];
+        const old_overlay = tubeshift_overlay;
 
-        if (tubeshift_overlay == undefined) {
-            tubeshift_overlay = new TubeShiftOverlayButton();
-            var overlay_element = tubeshift_overlay.element;
+        tubeshift_overlay = new TubeShiftOverlayButton();
+        var overlay_element = tubeshift_overlay.element;
 
-            $(overlay_element).css("position", "absolute");
-            $(overlay_element).css("left", "15px");
-            $(overlay_element).css("top", "15px");
+        $(overlay_element).css("position", "absolute");
+        $(overlay_element).css("left", "15px");
+        $(overlay_element).css("top", "15px");
 
-            $(overlay_element).on("click", () => {
-                tubeshift_browser_send_bg_page_message({ name: "shift" });
-                tubeshift_overlay.stop();
-                tubeshift_overlay = undefined;
-                video_element.pause();
-                return false;
-            });
+        $(overlay_element).on("click", () => {
+            tubeshift_browser_send_bg_page_message({ name: "shift" });
+            tubeshift_overlay.stop();
+            tubeshift_overlay = undefined;
+            video_element.pause();
+            return false;
+        });
 
-            video_container.appendChild(overlay_element);
+        video_container.appendChild(overlay_element);
 
-            tubeshift_overlay.start();
-        } else {
-            tubeshift_overlay.restart();
+        tubeshift_overlay.start();
+
+        if (old_overlay != undefined) {
+            old_overlay.stop();
         }
 
         return;
+    }
+
+    function tubeshift_cs_handle_active() {
+        if (tubeshift_overlay != undefined) {
+            tubeshift_overlay.stop();
+        }
+    }
+
+    function tubeshift_cs_handle_inactive() {
+        if (tubeshift_overlay != undefined) {
+            tubeshift_overlay.stop();
+        }
     }
 }
 
 function tubeshift_cs_handle_message(message) {
     if (message.name == 'available') {
         tubeshift_cs_handle_available(message.count);
+    } else if (message.name == 'active') {
+        tubeshift_cs_handle_active();
+    } else if (message.name == 'inactive') {
+        tubeshift_cs_handle_inactive();
     } else {
         console.error("unknown message in content script: " + message.name);
     }
