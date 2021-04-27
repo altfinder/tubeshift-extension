@@ -421,8 +421,12 @@ function tubeshift_bg_update_notification(tab_id) {
         }
     } else if(tab_platform_name != undefined) {
         tubeshift_browser_show_active(tab_id);
+        // always send message that causes the notification to go away
+        tubeshift_browser_send_tab_message(tab_id, { name: "active" });
     } else {
         tubeshift_browser_show_inactive(tab_id);
+        // always send message that causes notification to go away
+        tubeshift_browser_send_tab_message(tab_id, { name: "inactive" });
     }
 }
 
