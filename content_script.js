@@ -102,7 +102,7 @@ function TubeShiftTimeout(duration_in, callback_in) {
 
 function TubeShiftOverlayButton(config_in) {
     this.show_for = config_in.show_for;
-    this.img_url = tubeshift_browser_get_asset_url('/icons/tubeshift-overlay.png');
+    this.img_url = tubeshift_browser_get_asset_url('/icons/tubeshift-overlay.svg');
     this.stop_timer = undefined;
     this.element = undefined;
 
@@ -133,10 +133,11 @@ function TubeShiftOverlayButton(config_in) {
         const img_e = document.createElement('img');
 
         $(div_e).hide();
+        $(div_e).css("display", "inline-block");
+        $(div_e).css("height", "72px");
 
         p_e.textContent = 'X';
         $(p_e).css("color", "black");
-        $(p_e).css("font-size", "15px");
         $(p_e).css("font-weight", "bold");
         $(p_e).css("position", "absolute");
         $(p_e).css("left", "5px");
@@ -146,6 +147,7 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).on("click", this._close_clicked);
 
         img_e.src = this.img_url;
+        $(img_e).css("height", "100%");
         $(img_e).css("position", "absolute");
         $(img_e).css("left", "0px");
         $(img_e).css("top", "0px");
