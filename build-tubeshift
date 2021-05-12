@@ -13,7 +13,7 @@ rm -f "${DIST_FILE}"
 zip -r "${DIST_FILE}" \
     manifest.json *.txt \
     *.html *.css *.js \
-    icons/*.png icons/*.txt \
+    icons/*.png icons/*.svg icons/*.txt \
     img/*.png \
     platform/*.js \
     js/*.js
