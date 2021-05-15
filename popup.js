@@ -15,6 +15,47 @@ function tubeshift_popup_get_alternates_template() {
     return alternates_template;
 }
 
+function tubeshift_popup_handle_announcement(announcement) {
+    if (announcement == undefined || announcement.message == undefined) {
+        $('#announcement').css("display", "none");
+        return;
+    }
+
+    const p_e = document.createElement('p');
+    $(p_e).text(announcement.message);
+
+    const container_e = $('#announcement-message')[0];
+    $(container_e).empty();
+    $(container_e).append(p_e);
+
+    if (announcement.url != undefined) {
+        const link_e = document.createElement('a');
+        $(link_e).attr("href", announcement.url);
+        $(link_e).html("More info...");
+        $(container_e).append(link_e);
+    }
+
+    $('#announcement').css("display", "initial");
+
+    return;
+}
+
+function tubeshift_popup_handle_statistics(stats) {
+    const num_videos = stats.videos;
+    const num_channels = stats.channels;
+
+    var stats_text = num_videos.toLocaleString("en-US") + ' videos';
+    stats_text += ' and ' + num_channels.toLocaleString("en-US");
+    stats_text += ' channels';
+
+    p_element = document.createElement('p');
+    p_element.textContent = stats_text;
+
+    $('#video-stats-text').replaceWith(p_element);
+
+    return;
+}
+
 async function tubeshift_popup_start() {
     const window_url = new URL(window.location.href);
     let tab_id;
@@ -60,41 +101,9 @@ async function tubeshift_popup_start() {
         return false;
     }
 
-    background_page.tubeshift_api_get_stats().then(response => {
-        const num_videos = response.content;
-        const num_alternates = response.alternates;
-
-        var stats_text = num_videos.toLocaleString("en-US") + ' videos';
-        stats_text += ' and ' + num_alternates.toLocaleString("en-US");
-        stats_text += ' alternates';
-
-        p_element = document.createElement('p');
-        p_element.textContent = stats_text;
-
-        $('#video-stats-text').replaceWith(p_element);
-    });
-
     background_page.tubeshift_api_get_status().then(response => {
-        if (response.announcement == undefined || response.announcement.message == undefined) {
-            $('#announcement').css("display", "none");
-            return;
-        }
-
-        const p_e = document.createElement('p');
-        $(p_e).text(response.announcement.message);
-
-        const container_e = $('#announcement-message')[0];
-        $(container_e).empty();
-        $(container_e).append(p_e);
-
-        if (response.announcement.url != undefined) {
-            const link_e = document.createElement('a');
-            $(link_e).attr("href", response.announcement.url);
-            $(link_e).html("More info...");
-            $(container_e).append(link_e);
-        }
-
-        $('#announcement').css("display", "initial");
+        tubeshift_popup_handle_announcement(response.announcement);
+        tubeshift_popup_handle_statistics(response.statistics);
     });
 
     await tubeshift_popup_populate_alternates(tab_id);
