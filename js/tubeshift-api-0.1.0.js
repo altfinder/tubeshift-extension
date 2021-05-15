@@ -296,6 +296,27 @@ function TubeShiftAPI(user_config) {
         return buffer;
     }
 
+    this.get_status = function() {
+        const request_path = '/system/status';
+        return new Promise(resolve => {
+            this._request(request_path).then(response => {
+                if (response == undefined) {
+                    return undefined;
+                }
+
+                if (response.status != 'known') {
+                    return undefined;
+                }
+
+                if (response.data == undefined) {
+                    return undefined;
+                }
+
+                resolve(response.data);
+            });
+        });
+    }
+
     this.get_stats = function() {
         const request_path = '/system/stats';
         return new Promise(resolve => {
@@ -407,6 +428,10 @@ function TubeShiftAPI(user_config) {
 
         return api_singleton;
     }
+
+    var tubeshift_api_get_status = function() {
+        return tubeshift_api__get_singleton().get_status();
+    };
 
     var tubeshift_api_get_stats = function() {
         return tubeshift_api__get_singleton().get_stats();

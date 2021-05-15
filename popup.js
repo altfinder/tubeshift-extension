@@ -74,6 +74,29 @@ async function tubeshift_popup_start() {
         $('#video-stats-text').replaceWith(p_element);
     });
 
+    background_page.tubeshift_api_get_status().then(response => {
+        if (response.announcement == undefined || response.announcement.message == undefined) {
+            $('#announcement').css("display", "none");
+            return;
+        }
+
+        const p_e = document.createElement('p');
+        $(p_e).text(response.announcement.message);
+
+        const container_e = $('#announcement-message')[0];
+        $(container_e).empty();
+        $(container_e).append(p_e);
+
+        if (response.announcement.url != undefined) {
+            const link_e = document.createElement('a');
+            $(link_e).attr("href", response.announcement.url);
+            $(link_e).html("More info...");
+            $(container_e).append(link_e);
+        }
+
+        $('#announcement').css("display", "initial");
+    });
+
     await tubeshift_popup_populate_alternates(tab_id);
 
     return;
