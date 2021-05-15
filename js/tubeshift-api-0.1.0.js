@@ -91,7 +91,7 @@ function TubeShiftLocation(api, data) {
     const name = _validate_value(data.platform_name);
     const id = _validate_value(data.platform_id);
     const display = _validate_value(data.platform_display);
-    const watch = _validate_value(data.url);
+    const watch = _validate_value(data.platform_watch);
 
     this.get_name = function() {
         return name;
@@ -144,7 +144,7 @@ function TubeShiftVideo(api, result_in) {
             return undefined;
         }
 
-        return this.api_result.data.content_id;
+        return this.api_result.data.video_id;
     }
 
     this.remove_platform = function(platform_name) {
@@ -195,10 +195,7 @@ function TubeShiftVideo(api, result_in) {
             return cached_locations;
         }
 
-        var migration_locations = this.api_result.data.content;
-        migration_locations.locations = migration_locations.content;
-        delete migration_locations.content;
-        cached_locations = _make_locations(api, migration_locations);
+        cached_locations = _make_locations(api, this.api_result.data.locations);
 
         return cached_locations;
     }
@@ -268,7 +265,7 @@ function TubeShiftAPI(user_config) {
 
     this.request_url = function(path) {
         let url = "https://" + this.config.hostname;
-        url += '/0';
+        url += '/1';
         url += path;
         return url;
     }
@@ -290,7 +287,7 @@ function TubeShiftAPI(user_config) {
     }
 
     function _make_video_by_id_path(video_id) {
-        return "/content/" + encodeURIComponent(video_id);
+        return "/video/" + encodeURIComponent(video_id);
     }
 
     function _make_video_by_platform_path(platform_name, platform_id) {
@@ -300,7 +297,7 @@ function TubeShiftAPI(user_config) {
     }
 
     this.get_stats = function() {
-        const request_path = '/website/stats';
+        const request_path = '/system/stats';
         return new Promise(resolve => {
             this._request(request_path).then(response => {
                 if (response == undefined) {
@@ -314,6 +311,10 @@ function TubeShiftAPI(user_config) {
                 if (response.data == undefined) {
                     return undefined;
                 }
+
+                // backwards compatibility properties
+                response.data.content = response.data.videos;
+                response.data.alternates = response.data.locations;
 
                 resolve(response.data);
             });
