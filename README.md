@@ -252,97 +252,84 @@ will reject the HTTP responses. You need something like this for Apache:
 
 ### Endpoints
 
-Each TubeShift end point will return a lookup result as a JSON object with the following keys:
+Each TubeShift end point starts with an API version number and will return a result as a
+JSON object with the following keys:
 
 * status - always present; must be one of "known" or "unknown"
 * data - always present if status is "known"; content is defined per endpoint
 
 Here is an example of a query for a YouTube video that is not known by the system:
 
-    $ curl https://api.tubeshift.info/video/youtube/deadbeef
+    $ curl https://api.tubeshift.info/1/video/youtube/deadbeef
     {
         "status":"unknown"
     }
     $
 
-#### Content Record: /content/
+#### Video lookup: /video/&lt;video_id&gt;
 
 The TubeShift API is a way to find instances of and retrieve the information associated with a
-piece of content known to the system. TubeShift content has a UUID acting as the content identifier
-and is itself an ordered list of URLs and other information related to the video on the supported
+video known to the system. TubeShift uses a UUID acting as the video identifier and each video
+includes an ordered list of URLs and other information related to the video on the supported
 video platforms.
 
-A content record can be retrived via the /content/&lt;content_id&gt; endpoint like this:
+A video can be retrived via the /1/video/&lt;video_id&gt; endpoint like this:
 
-    $ curl https://api.tubeshift.info/content/7fe6ca77-f337-470b-bcc4-7365fbc5af7c
+    $ curl https://api.tubeshift.info/1/video/b3564397-0378-4df3-a561-0ee2d448d7eb
     {
-        "status": "known",
-        "data": [
-            {
-                "url": "https://rumble.com/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html",
-                "platform_name": "rumble",
-                "platform_display": "Rumble",
-                "platform_id": "vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html"
-            },
-            {
-                "url": "https://youtu.be/FqGlZdS_joU",
-                "platform_name": "youtube",
-                "platform_display": "YouTube",
-                "platform_id": "FqGlZdS_joU"
-            }
-        ]
+      "status": "known",
+      "data": {
+        "channel_id": "b600195c-7bf8-45bd-90b3-843fdfc056be",
+        "locations": [
+          {
+            "platform_display": "Rumble",
+            "platform_id": "vf1s2h",
+            "platform_name": "rumble",
+            "platform_watch": "https:\\/\\/rumble.com\\/vf1s2h-.html"
+          },
+          {
+            "platform_display": "YouTube",
+            "platform_id": "CjmtugTxvyk",
+            "platform_name": "youtube",
+            "platform_watch": "https:\\/\\/youtu.be\\/CjmtugTxvyk"
+          }
+        ],
+        "video_id": "b3564397-0378-4df3-a561-0ee2d448d7eb"
+      }
     }
     $
 
-The data associated with a content record is an ordered list of objects that contain information about the
-known alternatives for the video associated with the content. The list is ordered by the API to be rendered
-correctly for the end user assuming the end user is not using any locally configured sorting. The sort order
-defined by the API for results is as follows:
+The data associated with a video record is an ordered list of objects that contain information about the
+known alternatives for the video. The list is ordered by the API to be rendered correctly for the end user
+assuming the end user is not using any locally configured sorting. The sort order defined by the API for
+results is as follows:
 
 1. If the channel has a specific sort configuration it will be used.
 2. Otherwise the order is sorted alphabetically by the platform name.
 
-#### Video Platform Lookup: /video/
+#### Video Platform Lookup: /1/video/&lt;platform\_name&gt;/&lt;platform\_id&gt;
+Alternates for a specific platform can be retrieved via the /video/&lt;platform\_name&gt;/&lt;platform\_id&gt;
+set of endpoints. The response is identical to the record described at /1/video/&lt;video_id&gt;
 
-Content entries for videos can be found via the /video/&lt;platform\_name&gt;/&lt;platform\_id&gt; set
-of endpoints. The second level directory contains the video platform name and the third level contains
-the video platform unique identifier for the video.
+There are currently 3 supported video platform names:
 
-The response includes the content\_id and data associated with the content record in the same format as
-is described in "Content Record" endpoint documentation.
+* bitchute
+* odysee
+* youtube
 
-A lookup for a YouTube video looks like this:
+And here are some example URLs:
 
-    $ curl https://api.tubeshift.info/video/youtube/FqGlZdS_joU
-    {
-        "status": "known",
-        "data": {
-            "content_id": "7fe6ca77-f337-470b-bcc4-7365fbc5af7c",
-            "content": [
-                {
-                    "url": "https://rumble.com/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html",
-                    "platform_name": "rumble",
-                    "platform_display": "Rumble",
-                    "platform_id": "vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html"
-                },
-                {
-                    "url": "https://youtu.be/FqGlZdS_joU",
-                    "platform_name": "youtube",
-                    "platform_display": "YouTube",
-                    "platform_id": "FqGlZdS_joU"
-                }
-            ]
-        }
-    }
-    $
+* https://api.tubeshift.info/1/video/bitchute/ALl8exNJ9DU
+* https://api.tubeshift.info/1/video/odysee/@eevblog:7/eevblog-1383-human-battery-energy:a
+* https://api.tubeshift.info/1/video/youtube/ALl8exNJ9DU
 
-#### Card Data: /card/
+#### Card Data: /1/card/&lt;platform\_name&gt;/&lt;platform\_id&gt;
 
 This is information used for displaying a thumbnail and summary of a video like is often used in social
-media posts. This endpoint takes the form of /card/&lt;platform\_name&gt;/&lt;platform\_id&gt; and has
+media posts. This endpoint takes the form of /1/card/&lt;platform\_name&gt;/&lt;platform\_id&gt; and has
 a response that looks like this:
 
-    $ curl https://api.tubeshift.info/card/rumble/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html
+    $ curl https://api.tubeshift.info/1/card/rumble/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html
     {
         "status": "known",
         "data": {
@@ -354,3 +341,19 @@ a response that looks like this:
 
 Card lookups can only be performed for platform IDs that are known to the system otherwise an "unknown" response
 will be provided.
+
+There are 5 platform names that support card lookups:
+
+* bitchute
+* dailymotion
+* odysee
+* rumble
+* youtube
+
+Here are some example URLs:
+
+* https://api.tubeshift.info/1/card/bitchute/ALl8exNJ9DU
+* https://api.tubeshift.info/1/card/dailymotion/x81cchr
+* https://api.tubeshift.info/1/card/odysee/@eevblog:7/eevblog-1383-human-battery-energy:a
+* https://api.tubeshift.info/1/card/rumble/vfnbvp-arthur-macmurrough-kavanagh-a-most-remarkable-man.html
+* https://api.tubeshift.info/1/card/youtube/ALl8exNJ9DU
