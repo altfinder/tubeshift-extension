@@ -47,4 +47,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #platform-order-override img, #platform-order-default img {
     max-width: 200px;
+    cursor: move;
 }
