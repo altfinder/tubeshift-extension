@@ -31,3 +31,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .alert.host-permission-setting .disabled-warning {
     display: initial;
 }
+
+.platform-order-section-name {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.platform-order-placeholder {
+    border: 1px solid red;
+    background-color: lightblue;
+    font-size: 45px;
+}
+
+#platform-order-override, #platform-order-default {
+    list-style-type: none;
+}
+
+#platform-order-override img, #platform-order-default img {
+    max-width: 200px;
+}

@@ -52,6 +52,27 @@ async function tubeshift_options_start() {
 
     anonymous_data_collection_element.oninput = tubeshift_options_ui_handle_anonymous_data_collection_change;
     tubeshift_options_ui_handle_anonymous_data_collection_change({ target: anonymous_data_collection_element });
+
+    tubeshift_options_ui_init_display_order();
+}
+
+function tubeshift_options_ui_init_display_order() {
+    const override_element = $('#platform-order-override')[0];
+    const default_element = $('#platform-order-default')[0];
+
+    $(override_element).sortable({
+        connectWith: '#platform-order-default',
+        cursor: 'move',
+        placeholder: "platform-order-placeholder",
+        items: "> li.platform-order-item",
+    });
+
+    $(default_element).sortable({
+        connectWith: '#platform-order-override',
+        cursor: 'move',
+        placeholder: "platform-order-placeholder",
+        items: "> li.platform-order-item",
+    });
 }
 
 function tubeshift_options_ui_handle_anonymous_data_collection_change(event) {
