@@ -266,7 +266,7 @@ Here is an example of a query for a YouTube video that is not known by the syste
     }
     $
 
-#### Video lookup: /video/&lt;video_id&gt;
+#### Video lookup: /1/video/&lt;video_id&gt;
 
 The TubeShift API is a way to find instances of and retrieve the information associated with a
 video known to the system. TubeShift uses a UUID acting as the video identifier and each video
