@@ -56,15 +56,35 @@ async function tubeshift_options_start() {
     tubeshift_options_ui_init_display_order();
 }
 
+function tubeshift_options_ui_save_display_order(element) {
+    let display_order = Array();
+
+    for (item of element.querySelectorAll('.platform-order-item')) {
+        const platform_name = $(item).attr('data-platform-name');
+        display_order.push(platform_name);
+    }
+
+    background_page.tubeshift_bg_options_set('platform_display_order', display_order);
+}
+
 function tubeshift_options_ui_init_display_order() {
     const override_element = $('#platform-order-override')[0];
     const default_element = $('#platform-order-default')[0];
+    const saved_order = background_page.tubeshift_bg_options_get('platform_display_order');
+
+    for (platform_name of saved_order) {
+        const platform_selector = '[data-platform-name="' + platform_name + '"]';
+        const item = default_element.querySelector('.platform-order-item' + platform_selector);
+        $(default_element).remove(item);
+        $(override_element).append(item);
+    }
 
     $(override_element).sortable({
         connectWith: '#platform-order-default',
         cursor: 'move',
         placeholder: "platform-order-placeholder",
         items: "> li.platform-order-item",
+        update: function() { tubeshift_options_ui_save_display_order(override_element) }
     });
 
     $(default_element).sortable({

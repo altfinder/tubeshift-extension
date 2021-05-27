@@ -49,6 +49,8 @@ const tubeshift_default_options = {
     overlay_config: {
         show_for: 7000,
     },
+
+    platform_display_order: [],
 };
 
 function tubeshift_bg_clone(clone_from) {

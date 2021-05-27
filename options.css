@@ -39,8 +39,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 .platform-order-placeholder {
     border: 1px solid red;
-    background-color: lightblue;
-    font-size: 45px;
 }
 
 #platform-order-override, #platform-order-default {
