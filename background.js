@@ -46,6 +46,17 @@ const tubeshift_default_options = {
         youtube: true,
     },
 
+    auto_shift_from: {
+        youtube: true,
+    },
+
+    auto_shift_to: {
+        bitchute: true,
+        dailymotion: true,
+        odysee: true,
+        rumble: true,
+    },
+
     overlay_config: {
         show_for: 7000,
     },
@@ -328,10 +339,37 @@ function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
 }
 
 function tubeshift_bg_handle_message(tab_id, message) {
-    if (message.name == "shift") {
+    if (message.name == "overlay-clicked") {
         tubeshift_bg_handle_shift(tab_id);
+    } else if (message.name == "overlay-timeout") {
+        tubeshift_bg_handle_autoshift(tab_id);
     } else {
         throw "unknown message name: " + message.name;
+    }
+}
+
+function tubeshift_bg_handle_autoshift(tab_id) {
+    const watch_platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
+    const locations = tubeshift_bg_get_tab_info_alternates(tab_id);
+    const filtered = tubeshift_bg_filter_alternates_display(locations);
+    const auto_shift_to = tubeshift_bg_options_get('auto_shift_to');
+
+    if (! tubeshift_bg_options_get('auto_shift_from')[watch_platform_name]) {
+        return;
+    }
+
+    for (const location of filtered) {
+        const location_platform_name = location.get_name();
+        if (location_platform_name == watch_platform_name) {
+            continue;
+        } else if (! tubeshift_module_is_platform_name(location.get_name())) {
+            continue;
+        } else if (! auto_shift_to[location_platform_name]) {
+            continue;
+        }
+
+        tubeshift_browser_update_tab(tab_id, { url: location.get_watch() });
+        break;
     }
 }
 
@@ -385,6 +423,7 @@ function tubeshift_bg_fetch_platform_meta(name, id) {
 
 function tubeshift_bg_filter_alternates_display(alternates) {
     const show_platform = tubeshift_bg_options_get("show_platform");
+    const display_order = tubeshift_bg_options_get('platform_display_order');
     var filtered = [];
 
     if (alternates == undefined) {
@@ -399,6 +438,21 @@ function tubeshift_bg_filter_alternates_display(alternates) {
             filtered.push(location)
         };
     }
+
+    filtered.sort((a, b) => {
+        const a_index = display_order.indexOf(a.get_name());
+        const b_index = display_order.indexOf(b.get_name());
+
+        if (a_index >= 0 && b_index == -1) {
+            return -1;
+        } else if (a_index == -1 && b_index >= 0) {
+            return 1;
+        } else if (a_index == -1 && b_index == -1) {
+            return 0;
+        }
+
+        return a_index - b_index;
+    });
 
     return filtered;
 }

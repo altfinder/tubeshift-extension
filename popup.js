@@ -126,26 +126,10 @@ async function tubeshift_popup_populate_alternates(tab_id) {
     const platform_name = background_page.tubeshift_bg_get_tab_info_platform_name(tab_id);
     const alternates_list = document.getElementById('alternate_list');
     const filtered_content = background_page.tubeshift_bg_filter_alternates_display(alt_content);
-    const display_order = background_page.tubeshift_bg_options_get('platform_display_order');
 
     if (alt_content == undefined) {
         return;
     }
-
-    filtered_content.sort((a, b) => {
-        const a_index = display_order.indexOf(a.get_name());
-        const b_index = display_order.indexOf(b.get_name());
-
-        if (a_index >= 0 && b_index == -1) {
-            return -1;
-        } else if (a_index == -1 && b_index >= 0) {
-            return 1;
-        } else if (a_index == -1 && b_index == -1) {
-            return 0;
-        }
-
-        return a_index - b_index;
-    });
 
     for (const location of filtered_content) {
         if (location.get_name() == platform_name) {

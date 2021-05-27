@@ -185,6 +185,7 @@ function TubeShiftOverlayButton(config_in) {
         }
 
         this.stop_timer = new TubeShiftTimeout(this.show_for, () => {
+            tubeshift_browser_send_bg_page_message({ name: "overlay-timeout" });
             this.stop();
         });
 
@@ -240,7 +241,7 @@ function TubeShiftOverlayButton(config_in) {
         $(overlay_element).css('cursor', 'pointer');
 
         $(overlay_element).on("click", () => {
-            tubeshift_browser_send_bg_page_message({ name: "shift" });
+            tubeshift_browser_send_bg_page_message({ name: "overlay-clicked" });
             tubeshift_overlay.stop();
             tubeshift_overlay = undefined;
             video_element.pause();
