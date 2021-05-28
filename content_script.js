@@ -102,6 +102,7 @@ function TubeShiftTimeout(duration_in, callback_in) {
 
 function TubeShiftOverlayButton(config_in) {
     this.show_for = config_in.show_for;
+    this.whipe_white = config_in.whipe_white;
     this.img_url = tubeshift_browser_get_asset_url('/icons/tubeshift-overlay.svg');
     this.stop_timer = undefined;
     this.element = undefined;
@@ -195,7 +196,13 @@ function TubeShiftOverlayButton(config_in) {
         const svg_document = await this.svg_doc_promise;
         const white_background = svg_document.querySelector('#white-background');
         const x_width = white_background.width.baseVal.value;
-        const x_start = white_background.x.baseVal.value;
+        let x_start;
+
+        if (this.whipe_white) {
+            x_start = white_background.x.baseVal.value;
+        } else {
+            x_start = white_background.x.baseVal.value + x_width;
+        }
 
         white_background.x.baseVal.value = x_start - x_width;
         $(white_background).animate(

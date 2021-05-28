@@ -473,11 +473,19 @@ function tubeshift_bg_update_notification(tab_id) {
         const num_alternates = filtered_alternates.length;
 
         if (num_alternates > 0) {
+            let auto_shift = false;
+
+            if (tubeshift_bg_options_get('auto_shift_from')[tab_platform_name]) {
+                auto_shift = true;
+            }
+
             tubeshift_browser_show_available(tab_id, num_alternates);
 
             if (tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
                 const overlay_config = tubeshift_bg_options_get("overlay_config");
-                tubeshift_browser_send_tab_message(tab_id, { name: "available", count: num_alternates, config: overlay_config });
+
+                overlay_config.whipe_white = auto_shift;
+                tubeshift_browser_send_tab_message(tab_id, {name: "available", count: num_alternates, config: overlay_config });
             }
         }
     } else if(tab_platform_name != undefined) {
