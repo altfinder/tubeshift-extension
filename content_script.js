@@ -193,6 +193,7 @@ function TubeShiftOverlayButton(config_in) {
             throw "can't start an overlay that is already started";
         }
 
+        // there is no obvious reason why the animation works
         const svg_document = await this.svg_doc_promise;
         const white_background = svg_document.querySelector('#white-background');
         const x_width = white_background.width.baseVal.value;
@@ -205,14 +206,10 @@ function TubeShiftOverlayButton(config_in) {
         }
 
         white_background.x.baseVal.value = x_start - x_width;
+
         $(white_background).animate(
             { translate: x_width },
-            {
-                duration: this.show_for,
-                step: tick_value => {
-                    const pos = x_start - x_width + tick_value;
-                }
-            }
+            { duration: this.show_for }
         );
 
         this.stop_timer = new TubeShiftTimeout(this.show_for, () => {
