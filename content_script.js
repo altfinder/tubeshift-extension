@@ -105,6 +105,7 @@ function TubeShiftOverlayButton(config_in) {
     this.img_url = tubeshift_browser_get_asset_url('/icons/tubeshift-overlay.svg');
     this.stop_timer = undefined;
     this.element = undefined;
+    this.svg_doc_promise = undefined;
 
     this._hover_in = () => {
         if (this.stop_timer == undefined) {
@@ -132,7 +133,7 @@ function TubeShiftOverlayButton(config_in) {
     this._make_element = () => {
         const div_e = document.createElement('div');
         const p_e = document.createElement('p');
-        const img_e = document.createElement('img');
+        const obj_e = document.createElement('object');
 
         $(div_e).hide();
         $(div_e).css("display", "inline-block");
@@ -149,15 +150,24 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).css('cursor', 'pointer');
         $(p_e).on("click", this._close_clicked);
 
-        img_e.src = this.img_url;
-        $(img_e).css("height", "100%");
-        $(img_e).css("position", "absolute");
-        $(img_e).css("left", "0px");
-        $(img_e).css("top", "0px");
-        $(img_e).css("z-index", 1);
+        this.svg_doc_promise = new Promise(resolve => {
+            $(obj_e).on("load", () => {
+                resolve(obj_e.getSVGDocument());
+            });
+        });
+
+        obj_e.data = this.img_url;
+        obj_e.type = "image/svg+xml";
+        $(obj_e).css("height", "100%");
+        $(obj_e).css("position", "absolute");
+        $(obj_e).css("left", "0px");
+        $(obj_e).css("top", "0px");
+        $(obj_e).css("z-index", 1);
+
+        console.log(obj_e);
 
         div_e.appendChild(p_e);
-        div_e.appendChild(img_e);
+        div_e.appendChild(obj_e);
 
         this.element = div_e;
     };
@@ -179,14 +189,29 @@ function TubeShiftOverlayButton(config_in) {
         return true;
     };
 
-    this.start = function () {
+    this.start = async function () {
         if (this.stop_timer != undefined) {
             throw "can't start an overlay that is already started";
         }
 
+        const svg_document = await this.svg_doc_promise;
+        const white_background = svg_document.querySelector('#white-background');
+        const animate = svg_document.createElement('animate');
+        const x_start = white_background.x.baseVal.value - white_background.width.baseVal.value;
+        const x_end = white_background.x.baseVal.value;
+
+        animate.setAttribute('attributeName', 'x');
+        animate.setAttribute('from', x_start);
+        animate.setAttribute('to', x_end);
+        animate.setAttribute('dur', this.show_for / 1000 + 's');
+        animate.setAttribute('repeatCount', 1);
+
+        white_background.appendChild(animate);
+        console.log(white_background);
+
         this.stop_timer = new TubeShiftTimeout(this.show_for, () => {
             tubeshift_browser_send_bg_page_message({ name: "overlay-timeout" });
-            this.stop();
+            // this.stop();
         });
 
         $(document).on('keyup', this._key_handler);
@@ -225,7 +250,7 @@ function TubeShiftOverlayButton(config_in) {
 }
 
 {
-    var tubeshift_overlay;
+    let tubeshift_overlay;
 
     function tubeshift_cs_handle_available(count, config) {
         const video_element = $("video")[0];
