@@ -164,8 +164,6 @@ function TubeShiftOverlayButton(config_in) {
         $(obj_e).css("top", "0px");
         $(obj_e).css("z-index", 1);
 
-        console.log(obj_e);
-
         div_e.appendChild(p_e);
         div_e.appendChild(obj_e);
 
@@ -196,22 +194,23 @@ function TubeShiftOverlayButton(config_in) {
 
         const svg_document = await this.svg_doc_promise;
         const white_background = svg_document.querySelector('#white-background');
-        const animate = svg_document.createElement('animate');
-        const x_start = white_background.x.baseVal.value - white_background.width.baseVal.value;
-        const x_end = white_background.x.baseVal.value;
+        const x_width = white_background.width.baseVal.value;
+        const x_start = white_background.x.baseVal.value;
 
-        animate.setAttribute('attributeName', 'x');
-        animate.setAttribute('from', x_start);
-        animate.setAttribute('to', x_end);
-        animate.setAttribute('dur', this.show_for / 1000 + 's');
-        animate.setAttribute('repeatCount', 1);
-
-        white_background.appendChild(animate);
-        console.log(white_background);
+        white_background.x.baseVal.value = x_start - x_width;
+        $(white_background).animate(
+            { translate: x_width },
+            {
+                duration: this.show_for,
+                step: tick_value => {
+                    const pos = x_start - x_width + tick_value;
+                }
+            }
+        );
 
         this.stop_timer = new TubeShiftTimeout(this.show_for, () => {
             tubeshift_browser_send_bg_page_message({ name: "overlay-timeout" });
-            // this.stop();
+            this.stop();
         });
 
         $(document).on('keyup', this._key_handler);
