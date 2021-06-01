@@ -26,7 +26,7 @@ function TubeShiftTimeout(duration_in, callback_in) {
     this.duration = duration_in;
     this.timeout = undefined;
     this.started = undefined;
-    this.remaining = undefined;
+    this.paused = false;
 
     function _get_time() {
         return new Date().getTime();
@@ -51,7 +51,6 @@ function TubeShiftTimeout(duration_in, callback_in) {
         if (this.timeout != undefined) {
             clearTimeout(this.timeout);
             this.timeout = undefined;
-            this.remaining = undefined;
             this.started = undefined;
         }
 
@@ -60,6 +59,7 @@ function TubeShiftTimeout(duration_in, callback_in) {
 
     this.reset = function() {
         this.stop();
+        this.duration = duration_in;
         this.start();
     }
 
@@ -67,9 +67,11 @@ function TubeShiftTimeout(duration_in, callback_in) {
         const now = _get_time();
 
         // already paused
-        if (this.remaining != undefined) {
+        if (this.paused) {
             return;
         }
+
+        this.paused = true;
 
         if (this.timeout == undefined) {
             throw "missing timeout id";
@@ -80,21 +82,18 @@ function TubeShiftTimeout(duration_in, callback_in) {
         }
 
         const elapsed = now - this.started;
+        this.duration = this.duration - elapsed;
         clearTimeout(this.timeout);
-        this.remaining = this.duration - elapsed;
     }
 
     this.resume = function() {
-        if (this.remaining == undefined) {
+        if (! this.paused) {
             throw "can't resume a timeout that is not paused";
         }
 
-        if (this.remaining < 0) {
-            this.remaining = 0;
-        }
-
-        this.timeout = setTimeout(callback, this.remaining);
-        this.remaining = undefined;
+        this.started = _get_time();
+        this.paused = false;
+        this.timeout = setTimeout(callback, this.duration);
     }
 
     this.start();
@@ -108,12 +107,21 @@ function TubeShiftOverlayButton(config_in) {
     this.element = undefined;
     this.svg_doc_promise = undefined;
 
+    this._get_white_background = async function () {
+        const svg_document = await this.svg_doc_promise;
+        return svg_document.querySelector('#white-background');
+    }
+
     this._hover_in = () => {
         if (this.stop_timer == undefined) {
             return;
         }
 
-        this.stop_timer.pause();
+        this._get_white_background().then((white_background) => {
+            this.stop_timer.pause();
+            $(white_background).pause();
+        });
+
         return true;
     };
 
@@ -122,7 +130,11 @@ function TubeShiftOverlayButton(config_in) {
             return;
         }
 
-        this.stop_timer.reset();
+        this._get_white_background().then((white_background) => {
+            this.stop_timer.resume();
+            $(white_background).resume();
+        });
+
         return true;
     };
 
