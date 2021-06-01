@@ -78,42 +78,6 @@ them to. This has lead to the modularity being clumsy and painful. The way modul
 is implemented needs to be revisted and the code refactored to handle multiple
 video platforms better.
 
-### User Controlled Alternatives Display Order
-
-Currently the display order of alternatives is controlled by the API which returns
-an ordered list of alternatives. The API default sort order will always be
-alphabetical though a channel specific configuration may override the default
-sort order and provide the channel owners preference for display order.
-
-The user should be the ultimate authority over the final displayed order of
-alternatives. By default the user should get the API provided display order
-but with opt-in configuration by the user. The user would enable this feature then
-specify their desired display order in the options UI.
-
-### Overlay Timeout Indication
-
-When the TubeShift logo shows up as an overlay on top of the YouTube video the
-arrow should start out all grey and wipe from left to white while turning white.
-The wipe duration is the timeout duration for the overlay being displayed so that
-the color change acts as a progress bar for the overlay going away.
-
-Progress has been made here: the overlay image is now an SVG built out of components
-that can be animated by wiping left to right the white/grey color of the TubeShift
-arrow.
-
-### Automatic Redirect
-
-As an opt-in option for the user TubeShift should automatically redirect the
-browser tab the YouTube movie is present in to the first alternative video in
-the available list.
-
-If this feature is turned on then the redirect would happen after the overlay
-display timeout.
-
-Depends on:
-
-* Overlay Timeout Indication
-
 ### Overlay With Out New Tab
 
 When the video overlay is clicked a new tab is opened up. This is because the
