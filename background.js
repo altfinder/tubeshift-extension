@@ -293,6 +293,22 @@ function tubeshift_bg_has_undefined_deep(object) {
     function tubeshift_bg_set_tab_info_did_overlay(tab_id, value) {
         tubeshift_tab_info[tab_id].did_overlay = value;
     }
+
+    function tubeshift_bg_get_tab_info_location_alive(tab_id, url) {
+        if (tubeshift_tab_info[tab_id].location_alive == undefined) {
+            tubeshift_tab_info[tab_id].location_alive = {};
+        }
+
+        return tubeshift_tab_info[tab_id].location_alive[url];
+    }
+
+    function tubeshift_bg_set_tab_info_location_alive(tab_id, url, value) {
+        if (tubeshift_tab_info[tab_id].location_alive == undefined) {
+            tubeshift_tab_info[tab_id].location_alive = {};
+        }
+
+        tubeshift_tab_info[tab_id].location_alive[url] = value;
+    }
 }
 
 function tubeshift_bg_handle_tab_close(tab_id) {
@@ -373,6 +389,8 @@ function tubeshift_bg_handle_autoshift(tab_id) {
         } else if (! tubeshift_module_is_platform_name(location.get_name())) {
             continue;
         } else if (! auto_shift_to[location_platform_name]) {
+            continue;
+        } else if (! tubeshift_bg_get_tab_info_location_alive(tab_id, location.get_watch())) {
             continue;
         }
 
@@ -473,31 +491,39 @@ function tubeshift_bg_alternates_ready(tab_id, platform_name, video) {
 }
 
 function tubeshift_bg_update_notification(tab_id) {
-    const alternates = tubeshift_bg_get_tab_info_alternates(tab_id);
+    let alternates = tubeshift_bg_get_tab_info_alternates(tab_id);
     const tab_platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
     const did_overlay = tubeshift_bg_get_tab_info_did_overlay(tab_id);
 
     if (alternates != undefined) {
-        const filtered_alternates = tubeshift_bg_filter_alternates_display(alternates);
-        const num_alternates = filtered_alternates.length;
+        alternates = tubeshift_bg_filter_alternates_display(alternates);
+    } else {
+        alternates = [];
+    }
 
-        if (num_alternates > 0) {
-            let auto_shift = false;
+    if (alternates.length > 0) {
+        let auto_shift = false;
 
-            if (tubeshift_bg_options_get('auto_shift_from')[tab_platform_name]) {
-                auto_shift = true;
-            }
+        if (tubeshift_bg_options_get('auto_shift_from')[tab_platform_name]) {
+            auto_shift = true;
+        }
 
-            tubeshift_browser_show_available(tab_id, num_alternates);
+        tubeshift_browser_show_available(tab_id, alternates.length);
 
-            if (! did_overlay && tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
-                const overlay_config = tubeshift_bg_options_get("overlay_config");
+        if (! did_overlay && tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
+            const overlay_config = tubeshift_bg_options_get("overlay_config");
 
-                overlay_config.whipe_white = auto_shift;
-                tubeshift_browser_send_tab_message(tab_id, {name: "available", count: num_alternates, config: overlay_config });
+            tubeshift_bg_store_alternates_available(tab_id, alternates);
 
-                tubeshift_bg_set_tab_info_did_overlay(tab_id, true);
-            }
+            overlay_config.whipe_white = auto_shift;
+
+            tubeshift_browser_send_tab_message(tab_id, {
+                name: "available",
+                count: alternates.length,
+                config: overlay_config
+            });
+
+            tubeshift_bg_set_tab_info_did_overlay(tab_id, true);
         }
     } else if(tab_platform_name != undefined) {
         tubeshift_browser_show_active(tab_id);
@@ -507,6 +533,17 @@ function tubeshift_bg_update_notification(tab_id) {
         tubeshift_browser_show_inactive(tab_id);
         // always send message that causes notification to go away
         tubeshift_browser_send_tab_message(tab_id, { name: "inactive" });
+    }
+}
+
+function tubeshift_bg_store_alternates_available(tab_id, alternates) {
+    for (alt of alternates) {
+        const url = alt.get_watch();
+
+        fetch(url, { mode: 'no-cors' })
+            .then(response => {
+                tubeshift_bg_set_tab_info_location_alive(tab_id, url, response.ok);
+            });
     }
 }
 
