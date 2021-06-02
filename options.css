@@ -49,3 +49,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     max-width: 200px;
     cursor: move;
 }
+
+#platform-config-matrix td {
+    text-align: center;
+}
