@@ -510,21 +510,25 @@ function tubeshift_bg_update_notification(tab_id) {
 
         tubeshift_browser_show_available(tab_id, alternates.length);
 
-        if (! did_overlay && tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
-            const overlay_config = tubeshift_bg_options_get("overlay_config");
+        tubeshift_browser_get_active_tab().then(active_tab_id => {
+            if (active_tab_id == tab_id) {
+                if (! did_overlay && tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
+                    const overlay_config = tubeshift_bg_options_get("overlay_config");
 
-            tubeshift_bg_store_alternates_available(tab_id, alternates);
+                    tubeshift_bg_store_alternates_available(tab_id, alternates);
 
-            overlay_config.whipe_white = auto_shift;
+                    overlay_config.whipe_white = auto_shift;
 
-            tubeshift_browser_send_tab_message(tab_id, {
-                name: "available",
-                count: alternates.length,
-                config: overlay_config
-            });
+                    tubeshift_browser_send_tab_message(tab_id, {
+                        name: "available",
+                        count: alternates.length,
+                        config: overlay_config
+                    });
 
-            tubeshift_bg_set_tab_info_did_overlay(tab_id, true);
-        }
+                    tubeshift_bg_set_tab_info_did_overlay(tab_id, true);
+                }
+            }
+        });
     } else if(tab_platform_name != undefined) {
         tubeshift_browser_show_active(tab_id);
         // always send message that causes the notification to go away
