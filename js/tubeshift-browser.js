@@ -120,8 +120,8 @@ function tubeshift_browser_show_options() {
     chrome.runtime.openOptionsPage();
 }
 
-async function tubeshift_browser_create_tab(url) {
-    return await new Promise((resolve, reject) => {
+function tubeshift_browser_create_tab(url) {
+    return new Promise((resolve, reject) => {
         let tab_options = { active: true };
 
         if (url != undefined) {
@@ -134,14 +134,14 @@ async function tubeshift_browser_create_tab(url) {
     });
 }
 
-async function tubeshift_browser_update_tab(tab_id, new_value) {
-    return await new Promise((resolve, reject) => {
+function tubeshift_browser_update_tab(tab_id, new_value) {
+    return new Promise((resolve, reject) => {
         chrome.tabs.update(tab_id, new_value, resolve);
     });
 }
 
-async function tubeshift_browser_get_active_tab() {
-    return await new Promise((resolve, reject) => {
+function tubeshift_browser_get_active_tab() {
+    return new Promise((resolve, reject) => {
         chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, tabs => {
             if (tabs.length != 1) {
                 resolve(undefined);
@@ -152,8 +152,8 @@ async function tubeshift_browser_get_active_tab() {
     });
 }
 
-async function tubeshift_browser_get_bg_page() {
-    return await new Promise((resolve, reject) => {
+function tubeshift_browser_get_bg_page() {
+    return new Promise((resolve, reject) => {
         chrome.runtime.getBackgroundPage(bg_page => {
             resolve(bg_page);
         });
