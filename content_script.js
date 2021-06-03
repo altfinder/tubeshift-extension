@@ -209,20 +209,22 @@ function TubeShiftOverlayButton(config_in) {
 
         const white_background = await this._get_white_background();
         const x_width = white_background.width.baseVal.value;
-        let x_start;
+        const x_init = white_background.x.baseVal.value;
 
-        if (this.whipe_white) {
-            x_start = white_background.x.baseVal.value;
-        } else {
-            x_start = white_background.x.baseVal.value + x_width;
-        }
+        console.log(x_width, white_background.x.baseVal.value);
 
-        white_background.x.baseVal.value = x_start - x_width;
-
-        // there is no known obvious reason why the animation works
         $(white_background).animate(
-            { translate: x_width },
-            { duration: this.show_for }
+            { translate_x: x_width },
+            {
+                duration: this.show_for,
+                step: translate_x => {
+                    if (this.whipe_white) {
+                        white_background.x.baseVal.value = x_init - x_width + translate_x;
+                    } else {
+                        white_background.x.baseVal.value = x_init + translate_x;
+                    }
+                },
+            },
         );
 
         this.stop_timer = new TubeShiftTimeout(this.show_for, () => {
