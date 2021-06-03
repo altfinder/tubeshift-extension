@@ -23,6 +23,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     background-color: salmon;
 }
 
-.host-permission-setting {
-    display: inline-block;
+.host-permission-setting .disabled-warning {
+    font-weight: bold;
+    display: none;
+}
+
+.alert.host-permission-setting .disabled-warning {
+    display: initial;
 }
