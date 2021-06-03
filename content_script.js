@@ -163,11 +163,24 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).css('cursor', 'pointer');
         $(p_e).on("click", this._close_clicked);
 
+        // https://www.chromestatus.com/feature/5776623743795200
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=79647
+        // https://stackoverflow.com/questions/5719715/chrome-getsvgdocument-not-work-how-to-get-svg-document-in-a-html-file-in-chr
+        // https://stackoverflow.com/questions/5333878/google-chrome-wont-accept-contentdocument-or-contentwindow
+        // https://chrome-allow-file-access-from-file.com/
+        //
+        console.log("before promise");
         this.svg_doc_promise = new Promise(resolve => {
-            $(obj_e).on("load", () => {
-                resolve(obj_e.getSVGDocument());
+            console.log("before onload");
+            $(obj_e).on("load", (event) => {
+                console.log("before resolve", event);
+                const svg_doc = obj_e.contentDocument;
+                resolve(svg_doc);
+                console.log("after resolve", svg_doc);
             });
+            console.log("after onload");
         });
+        console.log("after promise", this.img_url);
 
         obj_e.data = this.img_url;
         obj_e.type = "image/svg+xml";
