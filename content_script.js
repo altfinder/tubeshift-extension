@@ -105,11 +105,12 @@ function TubeShiftOverlayButton(config_in) {
     this.img_url = tubeshift_browser_get_asset_url('/icons/tubeshift-overlay.svg');
     this.stop_timer = undefined;
     this.element = undefined;
-    this.svg_doc_promise = undefined;
+    this.svg_ready = undefined;
+    this.element = undefined;
 
     this._get_white_background = async function () {
-        const svg_document = await this.svg_doc_promise;
-        return svg_document.querySelector('#white-background');
+        const svg_document = await this.svg_ready;
+        return this.element.querySelector('#white-background');
     }
 
     this._hover_in = () => {
@@ -146,7 +147,7 @@ function TubeShiftOverlayButton(config_in) {
     this._make_element = () => {
         const div_e = document.createElement('div');
         const p_e = document.createElement('p');
-        const obj_e = document.createElement('object');
+        const image_e = document.createElement('svg');
 
         $(div_e).hide();
         $(div_e).css("display", "inline-block");
@@ -163,35 +164,23 @@ function TubeShiftOverlayButton(config_in) {
         $(p_e).css('cursor', 'pointer');
         $(p_e).on("click", this._close_clicked);
 
-        // https://www.chromestatus.com/feature/5776623743795200
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=79647
-        // https://stackoverflow.com/questions/5719715/chrome-getsvgdocument-not-work-how-to-get-svg-document-in-a-html-file-in-chr
-        // https://stackoverflow.com/questions/5333878/google-chrome-wont-accept-contentdocument-or-contentwindow
-        // https://chrome-allow-file-access-from-file.com/
-        //
-        console.log("before promise");
-        this.svg_doc_promise = new Promise(resolve => {
-            console.log("before onload");
-            $(obj_e).on("load", (event) => {
-                console.log("before resolve", event);
-                const svg_doc = obj_e.contentDocument;
-                resolve(svg_doc);
-                console.log("after resolve", svg_doc);
+        this.svg_ready = new Promise(resolve => {
+            fetch(this.img_url)
+            .then(response => response.text())
+            .then(svg_contents => {
+                $(image_e).html(svg_contents);
+                resolve();
             });
-            console.log("after onload");
         });
-        console.log("after promise", this.img_url);
 
-        obj_e.data = this.img_url;
-        obj_e.type = "image/svg+xml";
-        $(obj_e).css("height", "100%");
-        $(obj_e).css("position", "absolute");
-        $(obj_e).css("left", "0px");
-        $(obj_e).css("top", "0px");
-        $(obj_e).css("z-index", 1);
+        $(image_e).css("height", "100%");
+        $(image_e).css("position", "absolute");
+        $(image_e).css("left", "0px");
+        $(image_e).css("top", "0px");
+        $(image_e).css("z-index", 1);
 
         div_e.appendChild(p_e);
-        div_e.appendChild(obj_e);
+        div_e.appendChild(image_e);
 
         this.element = div_e;
     };
