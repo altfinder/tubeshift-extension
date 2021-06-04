@@ -110,7 +110,7 @@ function TubeShiftOverlayButton(config_in) {
 
     this._get_white_background = async function () {
         const svg_document = await this.svg_ready;
-        return this.element.querySelector('#white-background');
+        return this.element.querySelector('#tubeshift-overlay-image #white-background');
     }
 
     this._hover_in = () => {
@@ -145,44 +145,45 @@ function TubeShiftOverlayButton(config_in) {
     };
 
     this._make_element = () => {
-        const div_e = document.createElement('div');
-        const p_e = document.createElement('p');
+        const container_e = document.createElement('span');
+        const close_e = document.createElement('p');
         const image_e = document.createElement('svg');
 
-        $(div_e).hide();
-        $(div_e).css("display", "inline-block");
-        $(div_e).css("height", "72px");
-        $(div_e).hover(this._hover_in, this._hover_out);
+        $(container_e).hide();
+        $(container_e).css("height", "72px");
+        $(container_e).css("width", "96px");
+        $(container_e).hover(this._hover_in, this._hover_out);
 
-        p_e.textContent = 'X';
-        $(p_e).css("color", "black");
-        $(p_e).css("font-weight", "bold");
-        $(p_e).css("position", "absolute");
-        $(p_e).css("left", "5px");
-        $(p_e).css("top", "5px");
-        $(p_e).css("z-index", 2);
-        $(p_e).css('cursor', 'pointer');
-        $(p_e).on("click", this._close_clicked);
+        close_e.textContent = 'X';
+        $(close_e).css("color", "black");
+        $(close_e).css("font-weight", "bold");
+        $(close_e).css("position", "absolute");
+        $(close_e).css("left", "5px");
+        $(close_e).css("top", "5px");
+        $(close_e).css("z-index", 2);
+        $(close_e).css('cursor', 'pointer');
+        $(close_e).on("click", this._close_clicked);
 
         this.svg_ready = new Promise(resolve => {
             fetch(this.img_url)
-            .then(response => response.text())
-            .then(svg_contents => {
-                $(image_e).html(svg_contents);
-                resolve();
-            });
+                .then(response => response.text())
+                .then(svg_contents => {
+                    $(image_e).html(svg_contents);
+                    resolve();
+                });
         });
 
         $(image_e).css("height", "100%");
+        $(image_e).css("width", "100%");
         $(image_e).css("position", "absolute");
         $(image_e).css("left", "0px");
         $(image_e).css("top", "0px");
         $(image_e).css("z-index", 1);
 
-        div_e.appendChild(p_e);
-        div_e.appendChild(image_e);
+        container_e.appendChild(close_e);
+        container_e.appendChild(image_e);
 
-        this.element = div_e;
+        this.element = container_e;
     };
 
     this._show = function () {
@@ -278,6 +279,7 @@ function TubeShiftOverlayButton(config_in) {
         tubeshift_overlay = new TubeShiftOverlayButton(config);
         var overlay_element = tubeshift_overlay.element;
 
+        $(overlay_element).attr('id', 'tubeshift-overlay');
         $(overlay_element).css("position", "absolute");
         $(overlay_element).css("left", "15px");
         $(overlay_element).css("top", "15px");
