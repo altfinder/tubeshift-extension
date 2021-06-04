@@ -28,10 +28,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <div class="setting_group">
         <h1>Permissions</h1>
 
-        <h2>Access watch pages</h2>
+        <h2>Modify Web Pages</h2>
         <p>
-          Allow detailed access to the watch page on a video website. Required for the
-          visual overlay to work.
+          Allow TubeShift to see and modify the contents of web pages for the specified websites.
+          This is the same thing an ad blocker needs but gives you more control over
+          which websites it will happen on. This is required for the following features:
+          <ul>
+            <li>Visual Overlay</li>
+            <li>Auto-Shift</li>
+          </ul>
         </p>
         <div id="host-permission-div-bitchute" class="setting host-permission-setting">
           <h3>BitChute</h2>
@@ -100,7 +105,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           Control the behavior for each video website. <strong>Show</strong> makes the platform
           available in the known alternates list. <strong>Lookup</strong> turns checking for an
           alternate on and off. <strong>Overlay</strong> turns the visual overlay indicator on
-          and off for each website.
+          and off for each website. <strong>Auto-Shift From</strong> enables automatic shifting
+          to other platforms from the video currently being watched. <strong>Auto-Shift To</strong>
+          enables a platform as somewhere that an auto-shift can go to.
         </p>
         <table id="platform-config-matrix">
           <tr>
