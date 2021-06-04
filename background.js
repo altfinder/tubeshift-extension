@@ -293,22 +293,6 @@ function tubeshift_bg_has_undefined_deep(object) {
     function tubeshift_bg_set_tab_info_did_overlay(tab_id, value) {
         tubeshift_tab_info[tab_id].did_overlay = value;
     }
-
-    function tubeshift_bg_get_tab_info_location_alive(tab_id, url) {
-        if (tubeshift_tab_info[tab_id].location_alive == undefined) {
-            tubeshift_tab_info[tab_id].location_alive = {};
-        }
-
-        return tubeshift_tab_info[tab_id].location_alive[url];
-    }
-
-    function tubeshift_bg_set_tab_info_location_alive(tab_id, url, value) {
-        if (tubeshift_tab_info[tab_id].location_alive == undefined) {
-            tubeshift_tab_info[tab_id].location_alive = {};
-        }
-
-        tubeshift_tab_info[tab_id].location_alive[url] = value;
-    }
 }
 
 function tubeshift_bg_handle_tab_close(tab_id) {
@@ -389,8 +373,6 @@ function tubeshift_bg_handle_autoshift(tab_id) {
         } else if (! tubeshift_module_is_platform_name(location.get_name())) {
             continue;
         } else if (! auto_shift_to[location_platform_name]) {
-            continue;
-        } else if (! tubeshift_bg_get_tab_info_location_alive(tab_id, location.get_watch())) {
             continue;
         }
 
@@ -515,8 +497,6 @@ function tubeshift_bg_update_notification(tab_id) {
                 if (! did_overlay && tubeshift_bg_options_get("overlay_platform." + tab_platform_name)) {
                     const overlay_config = tubeshift_bg_options_get("overlay_config");
 
-                    tubeshift_bg_store_alternates_available(tab_id, alternates);
-
                     overlay_config.whipe_white = auto_shift;
 
                     tubeshift_browser_send_tab_message(tab_id, {
@@ -537,17 +517,6 @@ function tubeshift_bg_update_notification(tab_id) {
         tubeshift_browser_show_inactive(tab_id);
         // always send message that causes notification to go away
         tubeshift_browser_send_tab_message(tab_id, { name: "inactive" });
-    }
-}
-
-function tubeshift_bg_store_alternates_available(tab_id, alternates) {
-    for (alt of alternates) {
-        const url = alt.get_watch();
-
-        fetch(url, { mode: 'no-cors' })
-            .then(response => {
-                tubeshift_bg_set_tab_info_location_alive(tab_id, url, response.ok);
-            });
     }
 }
 
