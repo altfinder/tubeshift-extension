@@ -229,7 +229,9 @@ function TubeShiftOverlayButton(config_in) {
         );
 
         this.stop_timer = new TubeShiftTimeout(this.show_for, () => {
+            const video_element = $("video")[0];
             tubeshift_browser_send_bg_page_message({ name: "overlay-timeout" });
+            video_element.pause();
             this.stop();
         });
 

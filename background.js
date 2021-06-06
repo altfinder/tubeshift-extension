@@ -376,7 +376,7 @@ function tubeshift_bg_handle_autoshift(tab_id) {
             continue;
         }
 
-        tubeshift_browser_update_tab(tab_id, { url: location.get_watch() });
+        tubeshift_browser_create_tab(location.get_watch());
         break;
     }
 }
