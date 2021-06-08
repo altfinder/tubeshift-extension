@@ -47,7 +47,7 @@ const tubeshift_default_options = {
     },
 
     auto_shift_from: {
-        youtube: true,
+        youtube: false,
     },
 
     auto_shift_to: {
