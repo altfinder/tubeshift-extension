@@ -288,7 +288,7 @@ function TubeShiftOverlayButton(config_in) {
         $(overlay_element).attr('id', 'tubeshift-overlay');
         $(overlay_element).css("position", "absolute");
         $(overlay_element).css("left", "15px");
-        $(overlay_element).css("top", "15px");
+        $(overlay_element).css("top", "75px");
         $(overlay_element).css('cursor', 'pointer');
 
         $(overlay_element).on("click", () => {
