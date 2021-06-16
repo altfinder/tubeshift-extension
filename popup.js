@@ -30,8 +30,15 @@ function tubeshift_popup_handle_announcement(announcement) {
 
     if (announcement.url != undefined) {
         const link_e = document.createElement('a');
-        $(link_e).attr("href", announcement.url);
+        $(link_e).attr("href", '#');
         $(link_e).html("More info...");
+
+        $(link_e).on('click', () => {
+            tubeshift_browser_create_tab(announcement.url).then(() => {
+                window.close();
+            });
+        });
+
         $(container_e).append(link_e);
     }
 
