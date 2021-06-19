@@ -1,3 +1,16 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    color: #555555;
+    background-color: #f1f6fa;
+}
+
+#header {
+    color: #FFFFFF;
+    background-color: rgb(14,21,58);
+    text-align: center;
+}
+
 h2 {
     margin-top: 2em;
     margin-bottom: .5em;
@@ -19,6 +32,8 @@ div {
 .popup-help-image {
     max-width: 90%;
     display: block;
+    margin-top: 2em;
+    margin-bottom: 2em;
 }
 
 #how-it-works {
