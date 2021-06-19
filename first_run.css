@@ -5,16 +5,23 @@
 }
 
 h2 {
-    margin-top: 2em;
     margin-bottom: .5em;
 }
 
 div {
+    padding: .5em;
     overflow: auto;
+    margin-top: 2em;
 }
 
 #enable-permissions {
     margin-bottom: .5em;
+    background-color: salmon;
+}
+
+#enable-host-permissions {
+    color: black;
+    background-color: white;
 }
 
 .permissions-help-image {

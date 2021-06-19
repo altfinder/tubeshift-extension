@@ -20,7 +20,7 @@ async function tubeshift_fr_enable_host_permissions() {
 
     if (await tubeshift_browser_contains_hosts(all_watch_patterns)) {
         $(enable_button).stop();
-        $(enable_button).css('background-color', 'initial');
+        $(enable_button).css('background-color', 'white');
         $(enable_button).prop('disabled', true);
         $(enable_button).text("Enabled");
     }
@@ -33,7 +33,7 @@ function tubeshift_fr_pulseate(element, to_red) {
     if (to_red) {
         color = jQuery.Color('#FA8072');
     } else {
-        color = 'initial';
+        color = 'white';
     }
 
     $(element).animate({ backgroundColor: color }, {
