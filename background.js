@@ -195,7 +195,11 @@ function tubeshift_bg_has_undefined_deep(object) {
             changed = true;
         }
 
-        if (changed) {
+        if (tubeshift_options.first_run) {
+            const first_run_url = tubeshift_browser_get_asset_url('/first_run.html');
+            tubeshift_browser_create_tab(first_run_url);
+            tubeshift_bg_options_set("first_run", false);
+        } else if (changed) {
             await tubeshift_bg_options_save();
             tubeshift_browser_show_options();
         }
@@ -525,12 +529,6 @@ async function tubeshift_bg_init() {
     console.log("Initializing TubeShift Extension version " + manifest.version);
 
     await tubeshift_bg_options_init();
-
-    if (await tubeshift_bg_options_get('first_run')) {
-        tubeshift_browser_show_options();
-        tubeshift_bg_options_set("first_run", false);
-    }
-
     tubeshift_browser_start_bg_page();
     console.log("TubeShift Extension started");
 };

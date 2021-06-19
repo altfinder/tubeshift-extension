@@ -1,0 +1,50 @@
+body {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#header {
+    color: #FFFFFF;
+    background-color: rgb(14,21,58);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: .5em;
+}
+
+div {
+    padding: .5em;
+    overflow: auto;
+    margin-top: 2em;
+}
+
+#enable-permissions {
+    margin-bottom: .5em;
+    background-color: salmon;
+}
+
+#enable-host-permissions {
+    color: black;
+    background-color: white;
+}
+
+.permissions-help-image {
+    margin: .5em;
+    max-height: 100px;
+    float: left;
+}
+
+.popup-help-image {
+    max-width: 90%;
+    display: block;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#how-it-works {
+    clear: both;
+}

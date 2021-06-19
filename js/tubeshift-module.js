@@ -23,7 +23,7 @@
     }
 
     function tubeshift_module_get_platform_names() {
-        return tubeshift_platform_names.keys();
+        return Object.keys(tubeshift_platform_names);
     }
 
     function tubeshift_module_is_platform_name(platform_name) {
