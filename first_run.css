@@ -1,4 +1,26 @@
-.first-run-image {
+h2 {
+    margin-top: 2em;
+    margin-bottom: .5em;
+}
+
+div {
+    overflow: auto;
+}
+
+#enable-permissions {
+    margin-bottom: .5em;
+}
+
+.permissions-help-image {
+    max-height: 100px;
+    float: left;
+}
+
+.popup-help-image {
     max-width: 90%;
     display: block;
+}
+
+#how-it-works {
+    clear: both;
 }

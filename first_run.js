@@ -1,6 +1,7 @@
 let bg_page;
 
-async function tubeshift_fr_enable_host_permissions(event) {
+async function tubeshift_fr_enable_host_permissions() {
+    const enable_button = $("#enable-host-permissions")[0];
     let all_watch_patterns = [];
 
     for (const platform_name of bg_page.tubeshift_module_get_platform_names()) {
@@ -18,10 +19,10 @@ async function tubeshift_fr_enable_host_permissions(event) {
     await tubeshift_browser_request_hosts(all_watch_patterns);
 
     if (await tubeshift_browser_contains_hosts(all_watch_patterns)) {
-        $(event.target).stop();
-        $(event.target).css('background-color', 'initial');
-        $(event.target).prop('disabled', true);
-        $(event.target).text("Enabled");
+        $(enable_button).stop();
+        $(enable_button).css('background-color', 'initial');
+        $(enable_button).prop('disabled', true);
+        $(enable_button).text("Enabled");
     }
 }
 
@@ -46,8 +47,13 @@ function tubeshift_fr_pulseate(element, to_red) {
 async function tubeshift_fr_init() {
     bg_page = await tubeshift_browser_get_bg_page();
     const host_permissions_button = $("#enable-host-permissions")[0];
+    const host_permissions_image = $('#permissions-exclamation')[0];
 
     $(host_permissions_button).on("click", tubeshift_fr_enable_host_permissions);
+
+    $(host_permissions_image).on("click", tubeshift_fr_enable_host_permissions);
+    $(host_permissions_image).css("cursor", "pointer");
+
     tubeshift_fr_pulseate(host_permissions_button, true);
 }
 
