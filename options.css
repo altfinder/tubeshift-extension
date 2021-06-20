@@ -23,6 +23,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     background-color: salmon;
 }
 
+.host-permission-setting {
+    padding: .5em;
+    margin: .5em;
+}
+
 .host-permission-setting .disabled-warning {
     font-weight: bold;
     display: none;
@@ -30,6 +35,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 .alert.host-permission-setting .disabled-warning {
     display: initial;
+}
+
+#setting-anonymous-data-collection {
+    padding: .5em;
+    margin: .5em;
 }
 
 .platform-order-section-name {
