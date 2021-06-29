@@ -29,7 +29,9 @@ const tubeshift_default_options = {
 
     lookup_platform: {
         bitchute: true,
+        dailymotion: true,
         odysee: true,
+        rumble: true,
         youtube: true,
     },
 
@@ -199,9 +201,12 @@ function tubeshift_bg_has_undefined_deep(object) {
             const first_run_url = tubeshift_browser_get_asset_url('/first_run.html');
             tubeshift_browser_create_tab(first_run_url);
             tubeshift_bg_options_set("first_run", false);
-        } else if (changed) {
+
+            changed = true;
+        }
+
+        if (changed) {
             await tubeshift_bg_options_save();
-            tubeshift_browser_show_options();
         }
     }
 

@@ -14,3 +14,20 @@
 const tubeshift_platform_dailymotion_name = "dailymotion";
 
 tubeshift_module_add_platform_name(tubeshift_platform_dailymotion_name);
+
+tubeshift_module_set_platform_handler(tubeshift_platform_dailymotion_name, (tab_id, url) => {
+    if (url.hostname != 'www.dailymotion.com') {
+        return undefined;
+    }
+
+    matched = url.pathname.match(/^\/video\/([0-9a-z]{6,7})/);
+
+    if (matched == undefined || matched.length < 2) {
+        return undefined;
+    }
+
+    return {
+        platform_name: tubeshift_platform_dailymotion_name,
+        platform_id: matched[1],
+    };
+});

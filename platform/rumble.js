@@ -14,3 +14,20 @@
 const tubeshift_platform_rumble_name = "rumble";
 
 tubeshift_module_add_platform_name(tubeshift_platform_rumble_name);
+
+tubeshift_module_set_platform_handler(tubeshift_platform_rumble_name, (tab_id, url) => {
+    if (! url.hostname == 'rumble.com') {
+        return undefined;
+    }
+
+    matched = url.pathname.match(/^\/([0-9a-z]{6})-.+\.html$/);
+
+    if (matched == undefined || matched.length < 2) {
+        return undefined;
+    }
+
+    return {
+        platform_name: tubeshift_platform_rumble_name,
+        platform_id: matched[1],
+    };
+});
