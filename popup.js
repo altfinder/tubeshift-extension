@@ -105,7 +105,7 @@ async function tubeshift_popup_start() {
         return false;
     }
 
-    background_page.tubeshift_api_get_status().then(response => {
+    background_page.TubeShiftAPIFetchStatus().then(response => {
         tubeshift_popup_handle_announcement(response.announcement);
         tubeshift_popup_handle_statistics(response.statistics);
     });
@@ -132,34 +132,33 @@ async function tubeshift_popup_populate_alternates(tab_id) {
     const alt_content = background_page.tubeshift_bg_get_tab_info_alternates(tab_id);
     const platform_name = background_page.tubeshift_bg_get_tab_info_platform_name(tab_id);
     const alternates_list = document.getElementById('alternate_list');
-    const filtered_content = background_page.tubeshift_bg_filter_alternates_display(alt_content);
 
     if (alt_content == undefined) {
         return;
     }
 
-    for (const location of filtered_content) {
-        if (location.get_name() == platform_name) {
+    for (const location of alt_content) {
+        if (location.platformName == platform_name) {
             continue;
-        } else if (! background_page.tubeshift_module_is_platform_name(location.get_name())) {
+        } else if (! background_page.tubeshift_module_is_platform_name(location.platformName)) {
             continue;
         }
 
         const li_element = alternates_template.cloneNode(true);
         const a_element = li_element.querySelector('a');
         const init_img_element = li_element.querySelector('.alternate_init');
-        const init_image_file = '/img/platform-' + location.get_name() + '.png';
+        const init_image_file = '/img/platform-' + location.platformName + '.png';
         const title_element = li_element.querySelector('.alternate_text');
         const poster_img_element = document.createElement('img');
 
         init_img_element.src = init_image_file;
         init_img_element.alt = location.display;
 
-        a_element.href = location.get_watch();
+        a_element.href = location.watch;
 
         if (! from_content_script) {
             a_element.onclick = function() {
-                tubeshift_browser_update_tab(tab_id, { url: location.get_watch() }).then(() => {
+                tubeshift_browser_update_tab(tab_id, { url: location.watch }).then(() => {
                     window.close();
                 });
 
@@ -168,7 +167,7 @@ async function tubeshift_popup_populate_alternates(tab_id) {
         }
 
         poster_img_element.onload = function() {
-            li_element.style.listStyleImage = "url(img/platform-" + location.get_name() + ".li.png)";
+            li_element.style.listStyleImage = "url(img/platform-" + location.platformName + ".li.png)";
             init_img_element.replaceWith(poster_img_element);
         }
 
@@ -178,15 +177,17 @@ async function tubeshift_popup_populate_alternates(tab_id) {
             // FIXME Odysee links are total hacks right now and resolve to the wrong video page
             // which is fixed with a redirect via javascript after the page loads in a browser. This
             // provides the wrong metadata for the card service so Odysee is skipped for now
-            background_page.tubeshift_bg_fetch_platform_meta(location.get_name(), location.get_id())
-                .then(meta => {
-                    if (! meta.known()) {
-                        throw "result was not known";
+            background_page.tubeshift_bg_fetch_card(location.platformName, location.platformId)
+                .then(card => {
+                    if (! card.known) {
+                        console.error("card result was not known " + location.platformName + ':' + location.platformId);
+                        return;
                     }
 
-                    title_element.textContent = meta.get_title();
-                    poster_img_element.src = meta.get_thumbnail();
+                    title_element.textContent = card.title;
+                    poster_img_element.src = card.thumbnail;
                 }).catch(error => {
+                    console.error("Failure when fetching card: ", error);
                     title_element.textContent = '';
                 });
         }

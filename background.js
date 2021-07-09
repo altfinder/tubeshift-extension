@@ -349,7 +349,7 @@ function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
 
     tubeshift_bg_fetch_platform_info(platform_name, platform_id)
         .then(video => {
-            if (video.known()) {
+            if (video.known) {
                 tubeshift_bg_alternates_ready(tab_id, platform_name, video);
             }
         }).catch(error => { console.log("TubeShift platform info request failed: " + error) });
@@ -368,24 +368,27 @@ function tubeshift_bg_handle_message(tab_id, message) {
 function tubeshift_bg_handle_autoshift(tab_id) {
     const watch_platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
     const locations = tubeshift_bg_get_tab_info_alternates(tab_id);
-    const filtered = tubeshift_bg_filter_alternates_display(locations);
     const auto_shift_to = tubeshift_bg_options_get('auto_shift_to');
 
     if (! tubeshift_bg_options_get('auto_shift_from')[watch_platform_name]) {
         return;
     }
 
-    for (const location of filtered) {
-        const location_platform_name = location.get_name();
+    for (const location of locations) {
+        const location_platform_name = location.platformName;
         if (location_platform_name == watch_platform_name) {
             continue;
-        } else if (! tubeshift_module_is_platform_name(location.get_name())) {
+        } else if (! tubeshift_module_is_platform_name(location.platformName)) {
             continue;
         } else if (! auto_shift_to[location_platform_name]) {
             continue;
         }
 
-        tubeshift_browser_create_tab(location.get_watch());
+        if (location.watch == undefined) {
+            console.error("expected location.watch to be defined");
+        }
+
+        tubeshift_browser_create_tab(location.watch);
         break;
     }
 }
@@ -408,19 +411,19 @@ function tubeshift_bg_fetch_platform_info(platform_name, platform_id) {
             error("Network fetch denied: anonymous data collection is disabled");
         }
 
-        tubeshift_api_get_alternates({ platform_name: platform_name, platform_id: platform_id })
+        TubeShiftAPIFetchAlternates(platform_name, platform_id)
             .then(resolve)
             .catch(error);
     });
 }
 
-function tubeshift_bg_fetch_platform_meta(name, id) {
+function tubeshift_bg_fetch_card(name, id) {
     return new Promise((resolve, error) => {
         if (! tubeshift_bg_policy_anon_data_collection()) {
             error("Network fetch denied: anonymous data collection is disabled");
         }
 
-        tubeshift_api_get_meta({ platform_name: name, platform_id: id })
+        TubeShiftAPIFetchCard(name, id)
             .then(resolve)
             .catch(error);
     });
@@ -438,7 +441,8 @@ function tubeshift_bg_fetch_platform_meta(name, id) {
     }
 }
 
-function tubeshift_bg_filter_alternates_display(alternates) {
+function tubeshift_bg_filter_alternates_display(tab_id, alternates) {
+    const platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
     const show_platform = tubeshift_bg_options_get("show_platform");
     const display_order = tubeshift_bg_options_get('platform_display_order');
     var filtered = [];
@@ -448,17 +452,20 @@ function tubeshift_bg_filter_alternates_display(alternates) {
     }
 
     for (const location of alternates) {
-        const platform_name = location.get_name();
-        const should_display = show_platform[platform_name];
+        if (! show_platform[location.platformName]) {
+            continue;
+        }
 
-        if (should_display) {
-            filtered.push(location)
-        };
+        if (platform_name == location.platformName) {
+            continue;
+        }
+
+        filtered.push(location)
     }
 
     filtered.sort((a, b) => {
-        const a_index = display_order.indexOf(a.get_name());
-        const b_index = display_order.indexOf(b.get_name());
+        const a_index = display_order.indexOf(a.platformName);
+        const b_index = display_order.indexOf(b.platformName);
 
         if (a_index >= 0 && b_index == -1) {
             return -1;
@@ -475,9 +482,9 @@ function tubeshift_bg_filter_alternates_display(alternates) {
 }
 
 function tubeshift_bg_alternates_ready(tab_id, platform_name, video) {
-    const locations = video.get_locations();
+    video.removePlatform(platform_name);
 
-    tubeshift_bg_set_tab_info_alternates(tab_id, locations);
+    tubeshift_bg_set_tab_info_alternates(tab_id, video.locations);
     tubeshift_bg_update_notification(tab_id);
 }
 
@@ -486,9 +493,7 @@ function tubeshift_bg_update_notification(tab_id) {
     const tab_platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
     const did_overlay = tubeshift_bg_get_tab_info_did_overlay(tab_id);
 
-    if (alternates != undefined) {
-        alternates = tubeshift_bg_filter_alternates_display(alternates);
-    } else {
+    if (alternates == undefined) {
         alternates = [];
     }
 
