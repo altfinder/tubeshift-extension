@@ -157,7 +157,7 @@ function TubeShiftAPI(newConfig_in) {
 
     this._init = function() {
         newConfig = {
-            hostname: 'api.tubeshift.info',
+            hostName: 'api.tubeshift.info',
             version: 1,
             requestTimeout: 10000,
             enableFallback: false,
@@ -188,7 +188,7 @@ function TubeShiftAPI(newConfig_in) {
             throw "apiPath is a required argument";
         }
 
-        const apiUrl = "https://" + this.config.hostname + '/' + this.config.version + '/' + apiPath;
+        const apiUrl = "https://" + this.config.hostName + '/' + this.config.version + '/' + apiPath;
 
         return new Promise((resolve, reject) => {
             this.http.fetch(apiUrl, requestConfig)
