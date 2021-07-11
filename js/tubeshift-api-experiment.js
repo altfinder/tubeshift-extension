@@ -81,17 +81,34 @@ Methods
 
 {
     let apiSingleton;
+    let globalConfig;
+
+    var TubeShiftAPISetConfig = function(newConfig_in) {
+        if (globalConfig != undefined) {
+            throw "TubeShift API global configuration has already been set";
+        }
+
+        if (newConfig_in == undefined) {
+            globalConfig = { };
+        } else {
+            globalConfig = newConfig_in;
+        }
+    };
 
     function _TubeShiftAPIGetSingleton() {
         if (apiSingleton == undefined) {
-            // if (global_config == undefined) {
-            //     tubeshift_api_set_config();
-            // }
+            if (globalConfig == undefined) {
+                TubeShiftAPISetConfig();
+            }
 
-            apiSingleton = new TubeShiftAPI();
+            apiSingleton = new TubeShiftAPI(globalConfig);
         }
 
         return apiSingleton;
+    }
+
+    var TubeShiftAPIDiscover = function(platformName, platformId) {
+        return _TubeShiftAPIGetSingleton().discover(platformName, platformId);
     }
 
     var TubeShiftAPIFetch = function(apiPath) {
@@ -132,10 +149,10 @@ Methods
 }
 
 function TubeShiftAPI(newConfig_in) {
-    let fallbackVideoConstructors = {
-        bitchute: _TubeShiftMakeBitChuteVideo,
-        odysee: _TubeShiftMakeOdyseeVideo,
-        youtube: _TubeShiftMakeYouTubeVideo,
+    let fallbackLocationConstructors = {
+        bitchute: _TubeShiftMakeBitChuteLocation,
+        odysee: _TubeShiftMakeOdyseeLocation,
+        youtube: _TubeShiftMakeYouTubeLocation,
     };
 
     this._init = function() {
@@ -144,6 +161,10 @@ function TubeShiftAPI(newConfig_in) {
             version: 1,
             requestTimeout: 10000,
             enableFallback: false,
+            enableBitChute: false,
+            enableOdysee: false,
+            enableTubeShift: true,
+            enableYouTube: false,
         };
 
         if (newConfig_in != undefined) {
@@ -153,18 +174,28 @@ function TubeShiftAPI(newConfig_in) {
         }
 
         this.config = newConfig;
-        this.http = new TubeShiftFetch({ requestTimeout: this.config.requestTimeout });
+        this.http = new TubeShiftFetch({ requestTimeout: newConfig.requestTimeout });
 
         return;
     }
 
-    this.fetch = function (apiPath) {
+    this.fetch = function (apiPath, requestConfig) {
+        if (! this.config.enableTubeShift) {
+            throw "TubeShift API is not enabled";
+        }
+
         if (apiPath == undefined) {
             throw "apiPath is a required argument";
         }
 
         const apiUrl = "https://" + this.config.hostname + '/' + this.config.version + '/' + apiPath;
-        return this.http.fetch(apiUrl);
+
+        return new Promise((resolve, reject) => {
+            this.http.fetch(apiUrl, requestConfig)
+                .then(response => { return response.json(); })
+                .then(json => { resolve(new TubeShiftAPIResponse(json)) })
+                .catch(reject);
+        });
     }
 
     this.fetchAlternates = function(platformName, platformId) {
@@ -232,8 +263,13 @@ function TubeShiftAPI(newConfig_in) {
 
         return new Promise((resolve, reject) => {
             this.fetch(path)
-                .then(result => resolve(new TubeShiftVideo(result.data)))
-                .catch(() => resolve(this._makeFallbackVideo(lookupSpec)))
+                .then(result => {
+                    if (result.data == undefined) {
+                        resolve(undefined);
+                    }
+
+                    resolve(new TubeShiftVideo(result.data, true));
+                })
                 .catch(reject);
         });
     }
@@ -255,15 +291,165 @@ function TubeShiftAPI(newConfig_in) {
             throw "Can only make a fallback video if platformName and platformId are known";
         }
 
-        let constructor = fallbackVideoConstructors[info.platformName];
+        let constructor = fallbackLocationConstructors[info.platformName];
 
         if (constructor == undefined) {
             throw "No fallback video constructor for platformName:" + info.platformName;
         }
 
-        newVideo = constructor(info.platformId);
+        newLocation = constructor(info.platformId);
+        newVideo = new TubeShiftVideo({ locations: [ newLocation ] });
 
         return newVideo;
+    }
+
+    this.discover = function(platformName, platformId) {
+        return new Promise((resolve, reject) => {
+            this.fetchVideoByPlatform(platformName, platformId).then(video => {
+                resolve(video);
+            }).catch(error => {
+                this._discover(platformName, platformId).then(video => {
+                    resolve(video);
+                }).catch(reject);
+            })
+        });
+    }
+
+    this._discover = function(platformName, platformId) {
+        return new Promise((resolve, reject) => {
+            if (platformName != "youtube") {
+                throw "discovery is only available for YouTube videos";
+            }
+
+            discoveryPromises = [];
+            const toDiscover = {
+                enableBitChute: () => { return this._discoverBitchute(platformId) },
+                enableOdysee: () => { return this._discoverOdysee(platformId) },
+                enableYouTube: () => { return this._discoverYouTube(platformId) },
+            };
+
+            for(configName in toDiscover) {
+                try {
+                    if (this.config[configName]) {
+                        discoveryPromises.push(toDiscover[configName]());
+                    }
+                } catch (error) {
+                    console.error("got error from discovery function", error);
+                }
+            }
+
+            Promise.all(discoveryPromises)
+                .then(locations => {
+                    goodLocations = locations.filter(loc => loc != undefined);
+
+                    if (goodLocations.length == 0) {
+                        return;
+                    } else {
+                        newVideo = new TubeShiftVideo({ locations: goodLocations });
+                        resolve(newVideo);
+                    }
+                })
+                .then(() => resolve(this._makeFallbackVideo({ platformName, platformId })))
+                .catch(reject);
+        });
+    }
+
+    // BitChute ids are 13 characters long, a youtube id is max 11 characters,
+    // and when BitChute imports a video from YouTube it uses the YouTube id.
+    // If the YouTube video id exists inside BitChute it's considered to be a
+    // perfect clone
+    this._discoverBitchute = function(platformId) {
+        if (! this.config.enableBitChute) {
+            throw "BitChute API is not enabled";
+        }
+
+        return new Promise((resolve, reject) => {
+            const oembedUrl = "https://www.bitchute.com/oembed/?format=json&url=https://www.bitchute.com/video/" + encodeURIComponent(platformId) + "/";
+            this.http.fetch(oembedUrl, { method: "get" })
+                .then(response => {
+                    if (! response.ok) {
+                        resolve(undefined);
+                    }
+
+                    return response.json();
+                })
+                .then(json => {
+                    if (json.html == undefined) {
+                        throw "expected oembed html";
+                    }
+
+                    resolve(_TubeShiftMakeBitChuteLocation(platformId));
+                })
+                .catch(error => {
+                    console.error("Got error during BitChute discovery:", error);
+                    resolve(undefined)
+                });
+        });
+    }
+
+    // https://api.lbry.com/yt/resolve?video_ids=8onqBc5iTB4
+    this._discoverOdysee = function(platformId) {
+        if (! this.config.enableOdysee) {
+            throw "Odysee API is not enabled";
+        }
+
+        return new Promise((resolve, reject) => {
+            const lookupUrl = "https://api.lbry.com/yt/resolve?video_ids=" + encodeURIComponent(platformId);
+
+            this.http.fetch(lookupUrl, { method: "get" })
+                .then(response => {
+                    if (! response.ok) {
+                        resolve(undefined);
+                    }
+
+                    return response.json();
+                })
+                .then(json => {
+                    if (json.data == undefined) {
+                        resolve(undefined);
+                    } else if (json.data.videos == undefined) {
+                        resolve(undefined);
+                    } else if (json.data.videos[platformId] == undefined) {
+                        resolve(undefined);
+                    } else {
+                        odyseeUrl = json.data.videos[platformId].replaceAll("#", ":");
+                        resolve(_TubeShiftMakeOdyseeLocation(undefined, "https://www.odysee.com/" + odyseeUrl));
+                    }
+                })
+                .catch(error => {
+                    console.error("Got error during Odysee discovery:", error);
+                    resolve(undefined)
+                });
+        });
+    }
+
+    this._discoverYouTube = function(platformId) {
+        if (! this.config.enableYouTube) {
+            throw "YouTube API is not enabled";
+        }
+
+        return new Promise((resolve, reject) => {
+            const oembedUrl = "https://www.youtube.com/oembed/?format=json&url=https://www.youtube.com/watch?v=" + encodeURIComponent(platformId);
+            this.http.fetch(oembedUrl, { method: "get" })
+                .then(response => {
+                    if (! response.ok) {
+                        resolve(undefined);
+                    }
+
+                    return response.json();
+                })
+                .then(json => {
+                    if (json.html == undefined) {
+                        throw "expected oembed html";
+                    }
+
+                    resolve(_TubeShiftMakeYouTubeLocation(platformId));
+                })
+                .catch(error => {
+                    console.error("Got error during YouTube discovery:", error);
+                    resolve(undefined)
+                });
+        });
     }
 
     this._init();
@@ -288,10 +474,10 @@ function TubeShiftFetch(_requestConfig) {
         let timeout = undefined;
         let didTimeout = false;
         let cancel = undefined;
-        let requestConfig = this.requestConfig;
+        let requestConfig = Object.assign({ }, this.requestConfig);
 
         if (config != undefined) {
-            for (const name of config) {
+            for (const name in config) {
                 requestConfig[name] = config[name];
             }
         }
@@ -318,9 +504,7 @@ function TubeShiftFetch(_requestConfig) {
                 .then(response => {
                     if (didTimeout) throw "HTTP request timed out";
                     if (! response.ok) throw "HTTP response was not ok";
-                    return response.json();
-                }).then(json => {
-                    resolve(new TubeShiftAPIResponse(json));
+                    resolve(response);
                 }).catch(reject)
                 .finally(() => {
                     if (! didTimeout) {
@@ -365,12 +549,6 @@ function TubeShiftAPIResponse(apiResponse) {
 }
 
 function TubeShiftStats(apiData) {
-    if (apiData == undefined) {
-        this.known = false;
-        return;
-    }
-
-    this.known = true;
     this.channels = apiData.channels;
     this.locations = apiData.locations;
     this.videos = apiData.videos;
@@ -379,12 +557,6 @@ function TubeShiftStats(apiData) {
 }
 
 function TubeShiftStatus(apiData) {
-    if (apiData == undefined) {
-        this.known = false;
-        return;
-    }
-
-    this.known = true;
     this.announcement = apiData.announcement;
     this.statistics = new TubeShiftStats(apiData.statistics);
 
@@ -392,13 +564,6 @@ function TubeShiftStatus(apiData) {
 }
 
 function TubeShiftLocation(apiData) {
-    if (apiData == undefined) {
-        this.known = false;
-        return;
-    }
-
-    this.known = true;
-
     this.display = apiData.platform_display;
     this.embed = apiData.platform_embed;
     this.platformId = apiData.platform_id;
@@ -408,13 +573,12 @@ function TubeShiftLocation(apiData) {
     return;
 }
 
-function TubeShiftVideo(apiData) {
-    if (apiData == undefined) {
+function TubeShiftVideo(apiData, isKnown) {
+    if (isKnown) {
+        this.known = true;
+    } else {
         this.known = false;
-        return;
     }
-
-    this.known = true;
 
     this.videoId = apiData.video_id;
     this.channelId = apiData.channel_id;
@@ -448,58 +612,46 @@ function TubeShiftVideo(apiData) {
     return;
 }
 
-function _TubeShiftMakeYouTubeVideo(platformId_in) {
+function _TubeShiftMakeYouTubeLocation(platformId_in) {
     if (! new RegExp("^[0-9A-Za-z_-]{6,11}$").test(platformId_in)) {
         throw "Invalid YouTube id: '" + platformId_in + "'";
     }
 
-    return new TubeShiftVideo({
-        video_id: undefined,
-        channel_id: undefined,
-        locations: [ {
+    return {
             platform_display: "YouTube",
             platform_name: "youtube",
             platform_id: platformId_in,
             platform_embed: "https://www.youtube.com/embed/" + encodeURIComponent(platformId_in),
             platform_watch: "https://youtu.be/" + encodeURIComponent(platformId_in),
-        } ],
-    });
+    };
 }
 
-function _TubeShiftMakeBitChuteVideo(platformId_in) {
+function _TubeShiftMakeBitChuteLocation(platformId_in) {
     if (! new RegExp("^[0-9A-Za-z_-]{6,13}$").test(platformId_in)) {
         throw "Invalid BitChute id: '" + platformId_in + "'";
     }
 
-    return new TubeShiftVideo({
-        video_id: undefined,
-        channel_id: undefined,
-        locations: [ {
+    return {
             platform_display: "BitChute",
             platform_name: "bitchute",
             platform_id: platformId_in,
             platform_embed: "https://bitchute.com/embed/" + encodeURIComponent(platformId_in) + "/",
-            platform_watch: "https://bitchute.com/watch/" + encodeURIComponent(platformId_in) + "/",
-        } ],
-    });
+            platform_watch: "https://bitchute.com/video/" + encodeURIComponent(platformId_in) + "/",
+    };
 }
 
-function _TubeShiftMakeOdyseeVideo(claimId_in) {
-    if (! new RegExp("^[0-9a-f]{40}$").test(claimId_in)) {
+function _TubeShiftMakeOdyseeLocation(claimId_in, platformWatch_in) {
+    if (claimId_in != undefined && ! new RegExp("^[0-9a-f]{40}$").test(claimId_in)) {
         throw "Invalid Odysee claim: '" + claimId_in + "'";
     }
 
-    return new TubeShiftVideo({
-        video_id: undefined,
-        channel_id: undefined,
-        locations: [ {
+    return {
             platform_display: "Odysee",
             platform_name: "odysee",
             platform_id: claimId_in,
             platform_embed: "https://odysee.com/$/embed/_/" + encodeURIComponent(claimId_in),
-            platform_watch: undefined,
-        } ],
-    });
+            platform_watch: platformWatch_in,
+    };
 }
 
 function TubeShiftCard(apiData) {
@@ -507,8 +659,6 @@ function TubeShiftCard(apiData) {
         this.known = false;
         return;
     }
-
-    this.known = true;
 
     for (property of ["title", "thumbnail"]) {
         this[property] = apiData[property];
@@ -534,8 +684,11 @@ function TubeShiftEmbed(config) {
             enableFallback: true,
         });
 
-        const lookupSpec = this._makeSpec();
-        video = await this._fetchVideo(lookupSpec);
+        if (config.platformId != undefined) {
+            video = await this.tubeshift.discover(this.platformName, this.platformId);
+        } else {
+            video = await this.tubeshift.fetchVideoById(this.videoId);
+        }
 
         video.locations = video.locations.filter(loc => loc.embed != undefined);
 
@@ -555,16 +708,6 @@ function TubeShiftEmbed(config) {
         }
 
         return;
-    }
-
-    this._fetchVideo = async function(lookupSpec) {
-        video = await this.tubeshift.fetchVideo(lookupSpec);
-
-        if (! video.known) {
-            throw "video location was not known " + lookupSpec.platformName + ':' + lookupSpec.platformId;
-        }
-
-        return video;
     }
 
     this.setLocationNum = function(locationNum) {
@@ -600,20 +743,5 @@ function TubeShiftEmbed(config) {
 
         this.currentLocationNum = prevNum;
         return this.current();
-    }
-
-    this._makeSpec = function() {
-        spec = {};
-
-        if (this.videoId != undefined) {
-            spec['videoId'] = this.videoId;
-        } else if (this.platformName != undefined && this.platformId != undefined) {
-            spec['platformName'] = this.platformName;
-            spec['platformId'] = this.platformId;
-        } else {
-            throw "expected platformName/platformId or videoId";
-        }
-
-        return spec;
     }
 }

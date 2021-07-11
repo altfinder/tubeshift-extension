@@ -349,7 +349,7 @@ function tubeshift_bg_handle_watch_event(tab_id, platform_name, platform_id) {
 
     tubeshift_bg_fetch_platform_info(platform_name, platform_id)
         .then(video => {
-            if (video.known) {
+            if (video != undefined) {
                 tubeshift_bg_alternates_ready(tab_id, platform_name, video);
             }
         }).catch(error => { console.log("TubeShift platform info request failed: " + error) });
@@ -386,6 +386,7 @@ function tubeshift_bg_handle_autoshift(tab_id) {
 
         if (location.watch == undefined) {
             console.error("expected location.watch to be defined");
+            break;
         }
 
         tubeshift_browser_create_tab(location.watch);
@@ -411,7 +412,7 @@ function tubeshift_bg_fetch_platform_info(platform_name, platform_id) {
             error("Network fetch denied: anonymous data collection is disabled");
         }
 
-        TubeShiftAPIFetchAlternates(platform_name, platform_id)
+        TubeShiftAPIDiscover(platform_name, platform_id)
             .then(resolve)
             .catch(error);
     });
@@ -535,6 +536,8 @@ function tubeshift_bg_update_notification(tab_id) {
 }
 
 async function tubeshift_bg_init() {
+    TubeShiftAPISetConfig({ enableTubeShift: false, enableBitChute: true, enableOdysee: true });
+
     const manifest = await tubeshift_bg_get_manifest();
     console.log("Initializing TubeShift Extension version " + manifest.version);
 

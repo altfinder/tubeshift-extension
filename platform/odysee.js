@@ -13,7 +13,7 @@
 
 const tubeshift_platform_odysee_name = "odysee";
 
-const tubeshift_platform_odysee_patterns = [ "https://odysee.com/*" ];
+const tubeshift_platform_odysee_patterns = [ "https://www.odysee.com/*", "https://api.lbry.com/*" ];
 const tubeshift_platform_odysee_hostname = "odysee.com";
 
 function tubeshift_platform_odysee_watch_patterns() {
@@ -46,5 +46,5 @@ function tubeshift_platform_odysee_navigation_handler(tab_id, url) {
 }
 
 tubeshift_module_add_platform_name(tubeshift_platform_odysee_name);
-// tubeshift_module_set_watch_patterns(tubeshift_platform_odysee_name, tubeshift_platform_odysee_watch_patterns());
+tubeshift_module_set_watch_patterns(tubeshift_platform_odysee_name, tubeshift_platform_odysee_watch_patterns());
 tubeshift_module_set_platform_handler(tubeshift_platform_odysee_name, tubeshift_platform_odysee_navigation_handler);

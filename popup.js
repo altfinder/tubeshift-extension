@@ -108,7 +108,7 @@ async function tubeshift_popup_start() {
     background_page.TubeShiftAPIFetchStatus().then(response => {
         tubeshift_popup_handle_announcement(response.announcement);
         tubeshift_popup_handle_statistics(response.statistics);
-    });
+    }).catch(error => console.log("Got error when fetching TubeShift status", error));
 
     await tubeshift_popup_populate_alternates(tab_id);
 
@@ -174,20 +174,12 @@ async function tubeshift_popup_populate_alternates(tab_id) {
         alternates_list.appendChild(li_element);
 
         if (background_page.tubeshift_bg_policy_anon_data_collection()) {
-            // FIXME Odysee links are total hacks right now and resolve to the wrong video page
-            // which is fixed with a redirect via javascript after the page loads in a browser. This
-            // provides the wrong metadata for the card service so Odysee is skipped for now
             background_page.tubeshift_bg_fetch_card(location.platformName, location.platformId)
                 .then(card => {
-                    if (! card.known) {
-                        console.error("card result was not known " + location.platformName + ':' + location.platformId);
-                        return;
-                    }
-
                     title_element.textContent = card.title;
                     poster_img_element.src = card.thumbnail;
                 }).catch(error => {
-                    console.error("Failure when fetching card: ", error);
+                    console.log("Failure when fetching card: ", error);
                     title_element.textContent = '';
                 });
         }
