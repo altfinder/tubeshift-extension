@@ -3,3 +3,7 @@ body {
     font-size: 14px;
     background-color: #f1f6fa;
 }
+
+.alert {
+    background-color: salmon;
+}

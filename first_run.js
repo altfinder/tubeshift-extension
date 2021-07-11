@@ -19,29 +19,9 @@ async function tubeshift_fr_enable_host_permissions() {
     await tubeshift_browser_request_hosts(all_watch_patterns);
 
     if (await tubeshift_browser_contains_hosts(all_watch_patterns)) {
-        $(enable_button).stop();
-        $(enable_button).css('background-color', 'white');
-        $(enable_button).prop('disabled', true);
-        $(enable_button).text("Enabled");
+        $("#enable-permissions").removeClass("alert");
+        $("#enable-host-permissions").text("Enabled").prop("disabled", true);
     }
-}
-
-function tubeshift_fr_pulseate(element, to_red) {
-    const duration = 1000;
-    let color;
-
-    if (to_red) {
-        color = jQuery.Color('#FA8072');
-    } else {
-        color = 'white';
-    }
-
-    $(element).animate({ backgroundColor: color }, {
-        duration: duration,
-        done: () => {
-            tubeshift_fr_pulseate(element, ! to_red);
-        },
-    });
 }
 
 async function tubeshift_fr_init() {
@@ -53,8 +33,6 @@ async function tubeshift_fr_init() {
 
     $(host_permissions_image).on("click", tubeshift_fr_enable_host_permissions);
     $(host_permissions_image).css("cursor", "pointer");
-
-    tubeshift_fr_pulseate(host_permissions_button, true);
 }
 
 tubeshift_fr_init();

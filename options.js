@@ -37,9 +37,10 @@ async function tubeshift_options_start() {
     factory_reset_enable.disabled = false;
 
     factory_reset_button.onclick = function(event) {
-        background_page.tubeshift_bg_options_reset().then((result) => {
-            document.location.reload();
-        });
+        background_page.tubeshift_bg_options_reset()
+        .then(() => background_page.tubeshift_bg_options_init())
+        .then(() => document.location.reload())
+        .catch(error => console.error("Erroring during options reset: ", error));
     }
 
     for(let element of document.querySelectorAll("#extension_settings input.option-input[type=checkbox]")) {

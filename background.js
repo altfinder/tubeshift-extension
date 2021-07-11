@@ -61,118 +61,137 @@ const tubeshift_default_options = {
     platform_display_order: [],
 };
 
-function tubeshift_bg_clone(clone_from) {
-    return JSON.parse(JSON.stringify(clone_from));
-}
+{
+    let tubeshift_options = {};
+    let show_new_version = false;
 
-function tubeshift_bg_set_option_defaults(loaded_options, default_values) {
-    var changed = false;
+    var tubeshift_bg_options_enable_welcome_page = function() {
+        show_new_version = true;
+    }
 
-    for(const option_name in default_values) {
-        if(loaded_options[option_name] == undefined) {
-            const default_value = loaded_options[option_name] = default_values[option_name];
-            changed = true;
-        } else if (typeof loaded_options[option_name] == "object") {
-            if (tubeshift_bg_set_option_defaults(loaded_options[option_name], default_values[option_name])) {
+    var tubeshift_bg_options_should_welcome = function() {
+        return show_new_version;
+    }
+
+    function tubeshift_bg_clone(clone_from) {
+        return JSON.parse(JSON.stringify(clone_from));
+    }
+
+    function tubeshift_bg_set_option_defaults(loaded_options, default_values) {
+        var changed = false;
+
+        for(const option_name in default_values) {
+            if(loaded_options[option_name] == undefined) {
+                const default_value = loaded_options[option_name] = default_values[option_name];
                 changed = true;
-            }
-        }
-    }
-
-    return changed;
-}
-
-function tubeshift_bg_migrate_options_1(options) {
-    if (options.options_version != 1) {
-        throw "Migration handler for options version 1 got another version: '" + options.options_version + "'";
-    }
-
-    if ('seen_access_watch_page' in options) {
-        delete options.seen_access_watch_page;
-    }
-
-    options.options_version = 2;
-}
-
-function tubeshift_bg_migrate_options_0(options) {
-    if (options.options_version != 0) {
-        throw "Migration handler for options version 0 got another version: '" + options.options_version + "'";
-    }
-
-    // The show_overlay option becomes the default value for the
-    // platform specific overlay_platform.$platform_name options
-    if (options.show_overlay != undefined) {
-        console.log("  Importing existing show_overlay key");
-        const overlay_default = options.show_overlay;
-
-        if (options.overlay_platform == undefined) {
-            options.overlay_platform = {};
-        }
-
-        for(platform_name in tubeshift_default_options.overlay_platform) {
-            if (! platform_name in options.overlay_platform || options.overlay_platform[platform_name] == undefined) {
-                options.overlay_platform[platform_name] = overlay_default;
+            } else if (typeof loaded_options[option_name] == "object") {
+                if (tubeshift_bg_set_option_defaults(loaded_options[option_name], default_values[option_name])) {
+                    changed = true;
+                }
             }
         }
 
-        delete options.show_overlay;
-    }
-
-    options.options_version = 1;
-
-    return;
-}
-
-const tubeshift_bg_migrate_handlers = [
-    tubeshift_bg_migrate_options_0,
-];
-
-function tubeshift_bg_migrate_options(options) {
-    let changed = false;
-
-    if (Object.keys(options).length == 0) {
-        // empty options has nothing to migrate
-        console.log("won't migrate empty options");
         return changed;
     }
 
-    if (options.options_version == undefined) {
-        options.options_version = 0;
-        changed = true;
-    }
+    function tubeshift_bg_migrate_options_1(options) {
+        console.log("starting config version 1 migration function");
 
-    for(let i = 0; i < tubeshift_bg_options_version; i++) {
-        const migrate_function = tubeshift_bg_migrate_handlers[i];
-
-        if (migrate_function == undefined) {
-            throw "migrate function was missing for options version: '" + i + "'";
+        if (options.options_version != 1) {
+            throw "Migration handler for options version 1 got another version: '" + options.options_version + "'";
         }
 
-        migrate_function(options);
-        changed = true;
-    }
-
-    return changed;
-}
-
-function tubeshift_bg_has_undefined_deep(object) {
-    for(key in object) {
-        if (object[key] == undefined) {
-            return true;
+        if ('seen_access_watch_page' in options) {
+            delete options.seen_access_watch_page;
         }
 
-        if (typeof object[key] == 'object') {
-            if (tubeshift_bg_has_undefined_deep(object[key])) {
+        tubeshift_bg_options_enable_welcome_page();
+
+        options.options_version = 2;
+    }
+
+    function tubeshift_bg_migrate_options_0(options) {
+        if (options.options_version != 0) {
+            console.error("unexpected version: ", options.options_version);
+            throw "Migration handler for options version 0 got another version: '" + options.options_version + "'";
+        }
+
+        // The show_overlay option becomes the default value for the
+        // platform specific overlay_platform.$platform_name options
+        if (options.show_overlay != undefined) {
+            console.log("  Importing existing show_overlay key");
+            const overlay_default = options.show_overlay;
+
+            if (options.overlay_platform == undefined) {
+                options.overlay_platform = {};
+            }
+
+            for(platform_name in tubeshift_default_options.overlay_platform) {
+                if (! platform_name in options.overlay_platform || options.overlay_platform[platform_name] == undefined) {
+                    options.overlay_platform[platform_name] = overlay_default;
+                }
+            }
+
+            delete options.show_overlay;
+        }
+
+        options.options_version = 1;
+
+        return;
+    }
+
+    const tubeshift_bg_migrate_handlers = [
+        tubeshift_bg_migrate_options_0,
+        tubeshift_bg_migrate_options_1,
+    ];
+
+    function tubeshift_bg_migrate_options(options) {
+        let changed = false;
+
+        if (Object.keys(options).length == 0) {
+            // empty options has nothing to migrate
+            console.log("won't migrate empty options");
+            return changed;
+        }
+
+        if (options.options_version == undefined) {
+            options.options_version = 0;
+            changed = true;
+        }
+
+        if (options.options_version > tubeshift_bg_migrate_handlers.length - 1) {
+            throw "options version did not have a migration handler " + options.options_version;
+        }
+
+        for(let i = options.options_version; i < tubeshift_bg_options_version; i++) {
+            const migrate_function = tubeshift_bg_migrate_handlers[i];
+
+            if (migrate_function == undefined) {
+                throw "migrate function was missing for options version: '" + i + "'";
+            }
+
+            migrate_function(options);
+            changed = true;
+        }
+
+        return changed;
+    }
+
+    function tubeshift_bg_has_undefined_deep(object) {
+        for(key in object) {
+            if (object[key] == undefined) {
                 return true;
             }
+
+            if (typeof object[key] == 'object') {
+                if (tubeshift_bg_has_undefined_deep(object[key])) {
+                    return true;
+                }
+            }
         }
+
+        return false;
     }
-
-    return false;
-}
-
-{
-    let tubeshift_options = {};
 
     var tubeshift_bg_options_init = async function () {
         let changed = false;
@@ -210,6 +229,10 @@ function tubeshift_bg_has_undefined_deep(object) {
             tubeshift_bg_options_set("first_run", false);
 
             changed = true;
+        } else if (tubeshift_bg_options_should_welcome()) {
+            const welcome_url = tubeshift_browser_get_asset_url('/new_version.html');
+            console.log("welcome page", welcome_url);
+            tubeshift_browser_create_tab(welcome_url);
         }
 
         if (changed) {
