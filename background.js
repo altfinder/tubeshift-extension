@@ -13,7 +13,7 @@
 
 console.log("Loading TubeShift extension");
 
-const tubeshift_bg_options_version = 1;
+const tubeshift_bg_options_version = 2;
 
 const tubeshift_default_options = {
     first_run: true,
@@ -21,11 +21,6 @@ const tubeshift_default_options = {
     show_overlay: true,
 
     options_version: tubeshift_bg_options_version,
-
-    seen_access_watch_page: {
-        bitchute: true,
-        youtube: true,
-    },
 
     lookup_platform: {
         bitchute: true,
@@ -85,6 +80,18 @@ function tubeshift_bg_set_option_defaults(loaded_options, default_values) {
     }
 
     return changed;
+}
+
+function tubeshift_bg_migrate_options_1(options) {
+    if (options.options_version != 1) {
+        throw "Migration handler for options version 1 got another version: '" + options.options_version + "'";
+    }
+
+    if ('seen_access_watch_page' in options) {
+        delete options.seen_access_watch_page;
+    }
+
+    options.options_version = 2;
 }
 
 function tubeshift_bg_migrate_options_0(options) {
