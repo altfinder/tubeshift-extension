@@ -343,7 +343,11 @@ function TubeShiftAPI(newConfig_in) {
                     goodLocations = locations.filter(loc => loc != undefined);
 
                     if (goodLocations.length == 0) {
-                        return;
+                        if (this.config.enableFallback) {
+                            return;
+                        }
+
+                        resolve(undefined);
                     } else {
                         newVideo = new TubeShiftVideo({ locations: goodLocations });
                         resolve(newVideo);
@@ -381,7 +385,9 @@ function TubeShiftAPI(newConfig_in) {
                     resolve(_TubeShiftMakeBitChuteLocation(platformId));
                 })
                 .catch(error => {
-                    console.error("Got error during BitChute discovery:", error);
+                    if (error != "HTTP response was not ok") {
+                        console.error("Got unknown error during BitChute discovery:", error);
+                    }
                     resolve(undefined)
                 });
         });
