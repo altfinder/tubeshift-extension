@@ -566,8 +566,7 @@ function tubeshift_bg_update_notification(tab_id) {
 }
 
 async function tubeshift_bg_init() {
-    console.error("api.tubeshift.info is disabled to demo fallback operation");
-    TubeShiftAPISetConfig({ hostName: "intentionallybroken.tubeshift.info", enableBitChute: true, enableOdysee: true });
+    TubeShiftAPISetConfig({ enableBitChute: true, enableOdysee: true });
 
     const manifest = await tubeshift_bg_get_manifest();
     console.log("Initializing TubeShift Extension version " + manifest.version);
