@@ -142,6 +142,8 @@ async function tubeshift_popup_populate_alternates(tab_id) {
             continue;
         } else if (! background_page.tubeshift_module_is_platform_name(location.platformName)) {
             continue;
+        } else if (location.watch == undefined) {
+            continue;
         }
 
         const li_element = alternates_template.cloneNode(true);
@@ -173,17 +175,25 @@ async function tubeshift_popup_populate_alternates(tab_id) {
 
         alternates_list.appendChild(li_element);
 
-        if (background_page.tubeshift_bg_policy_anon_data_collection()) {
-            background_page.tubeshift_bg_fetch_card(location.platformName, location.platformId)
-                .then(card => {
-                    title_element.textContent = card.title;
-                    poster_img_element.src = card.thumbnail;
-                }).catch(error => {
-                    console.log("Failure when fetching card: ", error);
-                    title_element.textContent = '';
-                });
+        if (location.platformName == undefined || location.platformId == undefined) {
+            title_element.textContent = '';
+            continue;
+        } else if (! background_page.tubeshift_bg_policy_anon_data_collection()) {
+            title_element.textContent = '';
+            continue;
         }
+
+        background_page.tubeshift_bg_fetch_card(location.platformName, location.platformId)
+            .then(card => {
+                title_element.textContent = card.title;
+                poster_img_element.src = card.thumbnail;
+            }).catch(error => {
+                console.log("Failure when fetching card: ", error);
+                title_element.textContent = '';
+            });
     }
+
+    return;
 }
 
 tubeshift_popup_start();
