@@ -515,7 +515,11 @@ function tubeshift_bg_filter_alternates_display(tab_id, alternates) {
 function tubeshift_bg_alternates_ready(tab_id, platform_name, video) {
     video.removePlatform(platform_name);
 
-    let locations = video.locations.filter(loc => tubeshift_bg_options_get("show_platform")[loc.platformName]);
+    let locations = video.locations.filter(loc => {
+        if (loc.watch == null) return 0;
+
+        return tubeshift_bg_options_get("show_platform")[loc.platformName]
+    });
 
     tubeshift_bg_set_tab_info_alternates(tab_id, locations);
     tubeshift_bg_update_notification(tab_id);
