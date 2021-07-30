@@ -61,9 +61,17 @@ const tubeshift_default_options = {
     platform_display_order: [],
 };
 
+function tubeshift_bg_alloc_array() {
+    return [];
+}
+
 {
     let tubeshift_options = {};
     let show_new_version = false;
+
+    function tubeshift_bg_clone(clone_from) {
+        return JSON.parse(JSON.stringify(clone_from));
+    }
 
     var tubeshift_bg_options_enable_welcome_page = function() {
         show_new_version = true;
@@ -71,10 +79,6 @@ const tubeshift_default_options = {
 
     var tubeshift_bg_options_should_welcome = function() {
         return show_new_version;
-    }
-
-    function tubeshift_bg_clone(clone_from) {
-        return JSON.parse(JSON.stringify(clone_from));
     }
 
     function tubeshift_bg_set_option_defaults(loaded_options, default_values) {
@@ -472,29 +476,18 @@ function tubeshift_bg_fetch_card(name, id) {
     }
 }
 
-function tubeshift_bg_filter_alternates_display(tab_id, alternates) {
-    const platform_name = tubeshift_bg_get_tab_info_platform_name(tab_id);
-    const show_platform = tubeshift_bg_options_get("show_platform");
+function tubeshift_bg_alternates_ready(tab_id, platform_name, video) {
     const display_order = tubeshift_bg_options_get('platform_display_order');
-    var filtered = [];
 
-    if (alternates == undefined) {
-        return undefined;
-    }
+    video.removePlatform(platform_name);
 
-    for (const location of alternates) {
-        if (! show_platform[location.platformName]) {
-            continue;
-        }
+    let locations = video.locations.filter(loc => {
+        if (loc.watch == null) return 0;
 
-        if (platform_name == location.platformName) {
-            continue;
-        }
+        return tubeshift_bg_options_get("show_platform")[loc.platformName]
+    });
 
-        filtered.push(location)
-    }
-
-    filtered.sort((a, b) => {
+    locations.sort((a, b) => {
         const a_index = display_order.indexOf(a.platformName);
         const b_index = display_order.indexOf(b.platformName);
 
@@ -507,18 +500,6 @@ function tubeshift_bg_filter_alternates_display(tab_id, alternates) {
         }
 
         return a_index - b_index;
-    });
-
-    return filtered;
-}
-
-function tubeshift_bg_alternates_ready(tab_id, platform_name, video) {
-    video.removePlatform(platform_name);
-
-    let locations = video.locations.filter(loc => {
-        if (loc.watch == null) return 0;
-
-        return tubeshift_bg_options_get("show_platform")[loc.platformName]
     });
 
     tubeshift_bg_set_tab_info_alternates(tab_id, locations);

@@ -58,7 +58,10 @@ async function tubeshift_options_start() {
 }
 
 function tubeshift_options_ui_save_display_order(element) {
-    let display_order = Array();
+    // If the array doesn't come from the background page then FireFox will reclaim it
+    // and a "Can't access dead object" error will cause the display order UI and the
+    // notification of alternatives being available to fail
+    let display_order = background_page.tubeshift_bg_alloc_array();
 
     for (item of element.querySelectorAll('.platform-order-item')) {
         const platform_name = $(item).attr('data-platform-name');
