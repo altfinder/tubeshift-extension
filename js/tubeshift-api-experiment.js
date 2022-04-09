@@ -160,10 +160,10 @@ function TubeShiftAPI(newConfig_in) {
             hostName: 'api.tubeshift.info',
             version: 1,
             requestTimeout: 10000,
-            enableFallback: false,
+            enableFallback: true,
             enableBitChute: false,
             enableOdysee: false,
-            enableTubeShift: true,
+            enableTubeShift: false,
             enableYouTube: false,
         };
 
