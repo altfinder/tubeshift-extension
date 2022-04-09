@@ -15,51 +15,6 @@ function tubeshift_popup_get_alternates_template() {
     return alternates_template;
 }
 
-function tubeshift_popup_handle_announcement(announcement) {
-    if (announcement == undefined || announcement.message == undefined) {
-        $('#announcement').addClass("hide");
-        return;
-    }
-
-    const p_e = document.createElement('p');
-    $(p_e).text(announcement.message);
-
-    const container_e = $('#announcement-message')[0];
-    $(container_e).empty();
-    $(container_e).append(p_e);
-
-    if (announcement.url != undefined) {
-        const link_e = document.createElement('a');
-        $(link_e).attr("href", '#');
-        $(link_e).html("More info...");
-
-        $(link_e).on('click', () => {
-            tubeshift_browser_create_tab(announcement.url).then(() => {
-                window.close();
-            });
-        });
-
-        $(container_e).append(link_e);
-    }
-
-    $('#announcement').removeClass("hide");
-
-    return;
-}
-
-function tubeshift_popup_handle_statistics(stats) {
-    const num_videos = stats.videos;
-    const num_channels = stats.channels;
-
-    var stats_text = num_videos.toLocaleString("en-US") + ' videos';
-    stats_text += ' and ' + num_channels.toLocaleString("en-US");
-    stats_text += ' channels';
-
-    $('#video-stats-text').text(stats_text);
-
-    return;
-}
-
 async function tubeshift_popup_start() {
     const window_url = new URL(window.location.href);
     let tab_id;
@@ -88,27 +43,6 @@ async function tubeshift_popup_start() {
 
         return false;
     }
-
-    document.getElementById('donate_link').onclick = function() {
-        const tab_id = tubeshift_browser_create_tab('https://www.tubeshift.info/#support').then(() => {
-            window.close();
-        });
-
-        return false;
-    }
-
-    document.getElementById('home_link').onclick = function() {
-        const tab_id = tubeshift_browser_create_tab('https://www.tubeshift.info/').then(() => {
-            window.close();
-        });
-
-        return false;
-    }
-
-    background_page.TubeShiftAPIFetchStatus().then(response => {
-        tubeshift_popup_handle_announcement(response.announcement);
-        tubeshift_popup_handle_statistics(response.statistics);
-    }).catch(error => console.log("Got error when fetching TubeShift status", error));
 
     await tubeshift_popup_populate_alternates(tab_id);
 

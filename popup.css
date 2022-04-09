@@ -44,19 +44,6 @@ body {
     float: right;
 }
 
-#announcement {
-    width: 100%;
-    background-color: salmon;
-}
-
-.announcement-image {
-    float: left;
-}
-
-#statistics {
-    display: inline-block;
-}
-
 #alternates {
     display: inline-block;
 }
