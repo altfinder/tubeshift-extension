@@ -6,7 +6,7 @@ If we store your personal information with information that is non-personal, we 
 
 How is "personal information" obtained?
 
-As TubeShift operates it must transmit information over the Internet to servers. This results in the IP address associated with your computer being stored in system logs. The TubeShift browser extension itself does not transmit any "personal information" to the TubeShift servers during operation. It is still possible for "personal information" to be collected and transmitted in circumstances such as:
+As TubeShift operates it must transmit information over the Internet to servers. This results in the IP address associated with your computer being stored in system logs. Otherwise the TubeShift browser extension itself does not transmit any "personal information" to any servers during operation. It is still possible for "personal information" to be collected and transmitted in circumstances such as:
 
     * You provide it directly (e.g., when you choose to send in a crash report). This information could include all browser activity and visited URLS because of detailed logging used for debugging. You will have to provide explicit consent before "personal information" is transmitted in this way.
 
@@ -14,9 +14,11 @@ As TubeShift operates it must transmit information over the Internet to servers.
 
 How is your "personal information" used?
 
-When personal information is provided or collected it will be used in the ways for which you've already been informed or given us permission. Generally this information is used to enable the operation of TubeShift, understand and improve the user experience, and to understand and fix errors during operation.
+When personal information is provided or collected it will be used in the ways for which you've already been informed or given permission. Generally this information is used to enable the operation of TubeShift, understand and improve the user experience, and to understand and fix errors during operation.
 
 When is "personal information" shared with third parties?
+
+    * When the TubeShift extension needs to contact a third party server during operation.
 
     * When we have asked and received your permission to share it.
 
@@ -26,17 +28,17 @@ When is "personal information" shared with third parties?
 
 What is not done with your "personal information?"
 
-    * Your personal information will never be sold.
+    * Your personal information will never be sold by TubeShift.
 
     * Your personal information will never be given to a third party unless it is according to the policies described in 'When is "personal information" shared with third parties?'
 
-    * Your personal information will never be used to market to you.
+    * TubeShift will never use your personal information to market to you.
+
+    Note: TubeShift can not control what is done with your personal information when it is supplied to third parties during operation.
 
 How is your "personal information" stored and protected?
 
 We are committed to protecting your personal information once we have it. We implement physical, business and technical security measures. Despite our best efforts it is possible that unauthorized release of your "personal information" could happen such as through a security breach. If we learn of a security breach an announcement will be made via the TubeShift browser extension.
-
-"Personal information" contained in server logs is only stored for as long as the log entries are useful for the operation and troubleshooting of the information system that supports TubeShift. Generally system logs are purged after several weeks but some logs may be stored for longer periods of time as needed.
 
 What if this privacy policy changes?
 
