@@ -49,10 +49,6 @@ async function tubeshift_popup_start() {
     return;
 }
 
-function tubeshift_popup_get_platform_name_element() {
-    return document.getElementById('platform_name');
-}
-
 function tubeshift_popup_reset_alternates() {
     let alternates = tubeshift_popup_get_alternates_element();
     alternates.innerHTML = '';
@@ -84,7 +80,6 @@ async function tubeshift_popup_populate_alternates(tab_id) {
         const a_element = li_element.querySelector('a');
         const init_img_element = li_element.querySelector('.alternate_init');
         const init_image_file = '/img/platform-' + location.platformName + '.png';
-        const title_element = li_element.querySelector('.alternate_text');
         const poster_img_element = document.createElement('img');
 
         init_img_element.src = init_image_file;
@@ -108,23 +103,6 @@ async function tubeshift_popup_populate_alternates(tab_id) {
         }
 
         alternates_list.appendChild(li_element);
-
-        if (location.platformName == undefined || location.platformId == undefined) {
-            title_element.textContent = '';
-            continue;
-        } else if (! background_page.tubeshift_bg_policy_anon_data_collection()) {
-            title_element.textContent = '';
-            continue;
-        }
-
-        background_page.tubeshift_bg_fetch_card(location.platformName, location.platformId)
-            .then(card => {
-                title_element.textContent = card.title;
-                poster_img_element.src = card.thumbnail;
-            }).catch(error => {
-                console.log("Failure when fetching card: ", error);
-                title_element.textContent = '';
-            });
     }
 
     return;

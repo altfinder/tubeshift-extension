@@ -49,15 +49,8 @@ body {
 }
 
 #alternate_list {
-    /* list-style-image: url('img/platform-bitchute.li.png'); */
     list-style-type: none;
-    margin-left: 75px;
     padding: 0;
-}
-
-#alternate_list .alternate_entry {
-    width: 267px;
-    height: 200px;
 }
 
 #alternate_list .alternate_entry .alternate_image {
@@ -71,9 +64,4 @@ body {
     max-height: 100%;
     margin-left: auto;
     margin-right: auto;
-}
-
-#alternate_list .alternate_entry .alternate_text {
-    height: 50px;
-    overflow: hidden;
 }

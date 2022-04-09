@@ -22,7 +22,6 @@ Properties
 Async Methods
 
     fetchAlternates(platformName, platformId) - Fetch a TubeShiftVideo object then remove the location entry for the lookup from the results.
-    fetchCard(platformName, platformId) - Fetch a TubeShiftCard object
     fetch(apiPath) - Perform a GET request on the API web service
     fetchLocation(platformName, platformId) - Fetch a TubeShiftLocation object
     fetchStats() - Fetch a TubeShiftStats object
@@ -41,10 +40,6 @@ Properties
     watch - url to a page on the platform to watch the video with a normal user experience
     embed - url to the video on the platform that is suitable for putting into an iframe
 
-Async Methods
-
-    fetchCard() - Fetch a TubeShiftCard object for this location
-
 TubeShiftVideo
 
 Properties
@@ -57,13 +52,6 @@ Methods
 
     removePlatform(platformName) - remove all instances of a platfrom from the locations
     removeLocation(platformName, platformId) - remove a specific location from the list of locations
-
-TubeShiftCard
-
-Properties
-
-    title - Title of the video hosted at the platform
-    thumbnail - URL to a thumbnail image hosted at the video platform
 
 TubeShiftResponse
 
@@ -117,10 +105,6 @@ Methods
 
     var TubeShiftAPIFetchAlternates = function(platformName, platformId) {
         return _TubeShiftAPIGetSingleton().fetchAlternates(platformName, platformId);
-    }
-
-    var TubeShiftAPIFetchCard = function(platformName, platformId) {
-        return _TubeShiftAPIGetSingleton().fetchCard(platformName, platformId);
     }
 
     var TubeShiftAPIFetchLocation = function(platformName, platformId) {
@@ -206,14 +190,6 @@ function TubeShiftAPI(newConfig_in) {
                     resolve(video);
                 }).catch(reject);
         });
-    }
-
-    this.fetchCard = function(platformName, platformId) {
-        return new Promise((resolve, reject) => {
-            this.fetch('card/' + encodeURIComponent(platformName) + '/' + platformId)
-                .then(result => resolve(new TubeShiftCard(result.data)))
-                .catch(reject);
-            });
     }
 
     this.fetchLocation = function(platformName, platformId) {
@@ -658,19 +634,6 @@ function _TubeShiftMakeOdyseeLocation(claimId_in, platformWatch_in) {
             platform_embed: "https://odysee.com/$/embed/_/" + encodeURIComponent(claimId_in),
             platform_watch: platformWatch_in,
     };
-}
-
-function TubeShiftCard(apiData) {
-    if (apiData == undefined) {
-        this.known = false;
-        return;
-    }
-
-    for (property of ["title", "thumbnail"]) {
-        this[property] = apiData[property];
-    }
-
-    return;
 }
 
 function TubeShiftEmbed(config) {
